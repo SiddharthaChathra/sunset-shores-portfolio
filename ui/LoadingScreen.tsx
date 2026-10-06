@@ -110,7 +110,7 @@ export function LoadingScreen() {
       </div>
       <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgb(255_227_211/0.92)_80%)]" />
 
-      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-6 px-[clamp(18px,4vw,56px)] pb-[clamp(20px,5vh,48px)]">
+      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-6 px-[clamp(18px,4vw,56px)] pb-[clamp(20px,5vh,48px)] app:flex-col-reverse app:items-start app:gap-4 app:pb-[calc(var(--safe-b)+28px)]">
         <div className="max-w-[560px]">
           <p className="display text-[clamp(30px,4vw,54px)] text-ink">Sunset Shores</p>
           <p key={tip} className="mt-2 text-[15px] leading-relaxed font-semibold text-ink">
@@ -130,8 +130,8 @@ export function LoadingScreen() {
             Skip intro
           </button>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <Monogram size={84} />
+        <div className="flex flex-col items-end gap-2 app:flex-row app:items-center app:gap-3">
+          <Monogram size={84} className="app:!h-[52px] app:!w-[52px] app:!text-[19px]" />
           <p className="font-mono text-[11px] tracking-[0.2em] text-ink-soft uppercase">{profile.name}</p>
         </div>
       </div>

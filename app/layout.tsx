@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Anton, Manrope, Space_Mono } from "next/font/google";
 import { profile } from "@/content/profile";
+import { preload } from "react-dom";
 import "./globals.css";
 
 const anton = Anton({ subsets: ["latin"], weight: "400", variable: "--font-anton", display: "swap" });
@@ -46,6 +47,7 @@ export const viewport: Viewport = {
   colorScheme: "light",
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover", // safe areas: notch, Dynamic Island, home indicator
 };
 
 const jsonLd = {
@@ -60,6 +62,15 @@ const jsonLd = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  // Phones / tablets in portrait: the scene-window poster is the largest first paint; fetch it with the HTML.
+  preload("/stills/hero-phone-sm.webp", {
+    as: "image",
+    fetchPriority: "high",
+    media: "(max-width: 767.98px) and (orientation: portrait)",
+    imageSrcSet: "/stills/hero-phone-sm.webp 720w, /stills/hero-phone.webp 1080w",
+    imageSizes: "100vw",
+  });
+  preload("/stills/hero-tab.webp", { as: "image", fetchPriority: "high", media: "(min-width: 768px) and (max-width: 1023.98px) and (orientation: portrait)" });
   return (
     <html lang="en" className={`${anton.variable} ${manrope.variable} ${spaceMono.variable}`}>
       <body>

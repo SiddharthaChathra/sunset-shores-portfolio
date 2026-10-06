@@ -5,6 +5,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useProgress } from "@react-three/drei";
 import * as THREE from "three";
 import { useApp, type Tier } from "@/lib/store";
+import { useDeviceMode } from "@/lib/device";
 import { TIER_SETTINGS, forcedTier, tierDpr } from "@/lib/quality";
 import { rig } from "@/lib/rig";
 import { FOV, STOPS } from "./layout";
@@ -139,6 +140,7 @@ function ReadySignal() {
  * Windows that contain a single long hitch (texture upload, GC) are ignored: they say nothing about steady FPS.
  */
 const DPR_FLOOR = 0.6;
+const PHONE = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches && Math.min(screen.width, screen.height) < 744;
 const FIXED_DPR = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("fixeddpr");
 function FpsGuard({ tier, maxDpr }: { tier: Exclude<Tier, "low">; maxDpr: number }) {
   const setTier = useApp((s) => s.setTier);
@@ -191,8 +193,10 @@ function FpsGuard({ tier, maxDpr }: { tier: Exclude<Tier, "low">; maxDpr: number
 
     // Tier changes only once resolution can't go lower.
     const atFloor = a.dpr <= DPR_FLOOR + 0.01;
-    const floorFps = tier === "high" ? 40 : 15;
-    const floorFor = tier === "high" ? 3 : 8;
+    // phones: below 40 fps for 2 s at the lowest resolution → postcard stills (brief); elsewhere only a
+    // device that can't render at all (15 fps for 8 s) leaves the 3D tier
+    const floorFps = tier === "high" ? 40 : PHONE ? 40 : 15;
+    const floorFor = tier === "high" ? 3 : PHONE ? 2 : 8;
     a.floor = atFloor && fps < floorFps && !forcedTier() ? a.floor + 0.5 : 0;
     if (a.floor >= floorFor) {
       a.floor = 0;
@@ -222,7 +226,10 @@ export default function Stage({ tier }: { tier: Exclude<Tier, "low"> }) {
   const [staged, setStaged] = useState(false);
   const onCompiled = useCallback(() => setCompiled(true), []);
   const onStaged = useCallback(() => setStaged(true), []);
-  const frameloop = compiled && !hidden ? "always" : "never";
+  // Phones/tablets: pause the scene while a sheet, the Photos viewer or the assistant covers it (battery).
+  const mode = useDeviceMode();
+  const covered = useApp((st) => mode !== "frame" && (st.sheet !== null || st.lightbox !== null || st.assistantOpen));
+  const frameloop = compiled && !hidden && !covered ? "always" : "never";
 
   // Pause rendering when the tab is hidden.
   useEffect(() => {
@@ -254,6 +261,11 @@ export default function Stage({ tier }: { tier: Exclude<Tier, "low"> }) {
           // Test/diagnostics hooks (renderer stats + camera pose; no app state).
           const w = window as unknown as { __gl?: THREE.WebGLRenderer; __camera?: THREE.Camera; __scene?: THREE.Scene };
           w.__gl = gl;
+          // GPU reset / tab evicted: fall back to the postcard stills instead of a blank canvas
+          gl.domElement.addEventListener("webglcontextlost", (ev) => {
+            ev.preventDefault();
+            useApp.getState().setTier("low", "WebGL context lost");
+          });
           w.__camera = camera;
           w.__scene = scene;
           if (location.search.includes("diag")) (window as unknown as { __three?: typeof THREE }).__three = THREE;

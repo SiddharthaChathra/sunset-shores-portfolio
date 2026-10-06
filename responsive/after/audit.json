@@ -1,0 +1,992 @@
+{
+ "iphone-se": {
+  "tier": "low",
+  "viewport": {
+   "width": 375,
+   "height": 667
+  },
+  "sections": {
+   "hero": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "about": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "projects": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "experience": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "certificates": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "skills": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "contact": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   }
+  }
+ },
+ "iphone-15": {
+  "tier": "low",
+  "viewport": {
+   "width": 393,
+   "height": 852
+  },
+  "sections": {
+   "hero": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "about": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "projects": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "experience": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "certificates": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "skills": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "contact": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   }
+  }
+ },
+ "iphone-15-pro-max": {
+  "tier": "low",
+  "viewport": {
+   "width": 430,
+   "height": 932
+  },
+  "sections": {
+   "hero": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "about": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "projects": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "experience": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "certificates": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "skills": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "contact": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   }
+  }
+ },
+ "pixel-7": {
+  "tier": "low",
+  "viewport": {
+   "width": 412,
+   "height": 915
+  },
+  "sections": {
+   "hero": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "about": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "projects": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "experience": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "certificates": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "skills": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "contact": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   }
+  }
+ },
+ "galaxy-fold": {
+  "tier": "low",
+  "viewport": {
+   "width": 344,
+   "height": 882
+  },
+  "sections": {
+   "hero": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "about": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "projects": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "experience": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "certificates": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "skills": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "contact": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   }
+  }
+ },
+ "ipad-mini": {
+  "tier": "low",
+  "viewport": {
+   "width": 768,
+   "height": 1024
+  },
+  "sections": {
+   "hero": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "about": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "projects": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "experience": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "certificates": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "skills": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "contact": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   }
+  }
+ },
+ "ipad-air": {
+  "tier": "low",
+  "viewport": {
+   "width": 820,
+   "height": 1180
+  },
+  "sections": {
+   "hero": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "about": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "projects": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "experience": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "certificates": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "skills": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "contact": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   }
+  }
+ },
+ "ipad-pro": {
+  "tier": "low",
+  "viewport": {
+   "width": 1024,
+   "height": 1366
+  },
+  "sections": {
+   "hero": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "about": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "projects": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "experience": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "certificates": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "skills": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "contact": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   }
+  }
+ },
+ "iphone-15-land": {
+  "tier": "low",
+  "viewport": {
+   "width": 852,
+   "height": 393
+  },
+  "sections": {
+   "hero": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "about": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "projects": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "experience": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "certificates": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "skills": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "contact": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   }
+  }
+ },
+ "ipad-pro-land": {
+  "tier": "low",
+  "viewport": {
+   "width": 1366,
+   "height": 1024
+  },
+  "sections": {
+   "hero": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "about": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "projects": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "experience": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "certificates": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "skills": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "contact": {
+    "overflow": 0,
+    "smallTargets": [],
+    "tinyText": [],
+    "tinyTextCount": 0
+   }
+  }
+ },
+ "desktop": {
+  "tier": "medium",
+  "viewport": {
+   "width": 1440,
+   "height": 900
+  },
+  "sections": {
+   "hero": {
+    "overflow": 0,
+    "smallTargets": [
+     {
+      "w": 24,
+      "h": 24,
+      "label": "1. Drive to Home (Ocean Drive), current "
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "2. Drive to About (Rooftop Pool)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "3. Drive to Projects (Billboard Highway)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "4. Drive to Experience (Beach Café)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "5. Drive to Certificates (Trophy Garage)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "6. Drive to Skills (Marina)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "7. Drive to Contact (The Pier)"
+     },
+     {
+      "w": 85,
+      "h": 34,
+      "label": "Résumé"
+     },
+     {
+      "w": 72,
+      "h": 34,
+      "label": "Turn the radio on"
+     }
+    ],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "about": {
+    "overflow": 0,
+    "smallTargets": [
+     {
+      "w": 24,
+      "h": 24,
+      "label": "1. Drive to Home (Ocean Drive)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "2. Drive to About (Rooftop Pool), curren"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "3. Drive to Projects (Billboard Highway)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "4. Drive to Experience (Beach Café)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "5. Drive to Certificates (Trophy Garage)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "6. Drive to Skills (Marina)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "7. Drive to Contact (The Pier)"
+     },
+     {
+      "w": 85,
+      "h": 34,
+      "label": "Résumé"
+     },
+     {
+      "w": 72,
+      "h": 34,
+      "label": "Turn the radio on"
+     }
+    ],
+    "tinyText": [
+     {
+      "size": 13.5,
+      "text": "Information Science & Engineering @ NMAM"
+     },
+     {
+      "size": 14.5,
+      "text": "Siddhartha is an Information Science & E"
+     },
+     {
+      "size": 14.5,
+      "text": "Two internships at NoviTech R&D grounded"
+     }
+    ],
+    "tinyTextCount": 3
+   },
+   "projects": {
+    "overflow": 0,
+    "smallTargets": [
+     {
+      "w": 24,
+      "h": 24,
+      "label": "1. Drive to Home (Ocean Drive)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "2. Drive to About (Rooftop Pool)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "3. Drive to Projects (Billboard Highway)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "4. Drive to Experience (Beach Café)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "5. Drive to Certificates (Trophy Garage)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "6. Drive to Skills (Marina)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "7. Drive to Contact (The Pier)"
+     },
+     {
+      "w": 85,
+      "h": 34,
+      "label": "Résumé"
+     },
+     {
+      "w": 72,
+      "h": 34,
+      "label": "Turn the radio on"
+     },
+     {
+      "w": 225,
+      "h": 36,
+      "label": "01JobSentinel AI"
+     },
+     {
+      "w": 225,
+      "h": 36,
+      "label": "02NetSentinel"
+     },
+     {
+      "w": 225,
+      "h": 36,
+      "label": "03Heart Disease Detection"
+     },
+     {
+      "w": 225,
+      "h": 36,
+      "label": "04Travora AI"
+     },
+     {
+      "w": 338,
+      "h": 40,
+      "label": "GitHub repository for JobSentinel AI (op"
+     }
+    ],
+    "tinyText": [
+     {
+      "size": 15,
+      "text": "Autonomous job discovery and verificatio"
+     },
+     {
+      "size": 13,
+      "text": "Monitors permitted public job sources an"
+     }
+    ],
+    "tinyTextCount": 2
+   },
+   "experience": {
+    "overflow": 0,
+    "smallTargets": [
+     {
+      "w": 24,
+      "h": 24,
+      "label": "1. Drive to Home (Ocean Drive)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "2. Drive to About (Rooftop Pool)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "3. Drive to Projects (Billboard Highway)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "4. Drive to Experience (Beach Café), cur"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "5. Drive to Certificates (Trophy Garage)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "6. Drive to Skills (Marina)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "7. Drive to Contact (The Pier)"
+     },
+     {
+      "w": 85,
+      "h": 34,
+      "label": "Résumé"
+     },
+     {
+      "w": 72,
+      "h": 34,
+      "label": "Turn the radio on"
+     }
+    ],
+    "tinyText": [
+     {
+      "size": 13.5,
+      "text": "AI Intern · NoviTech R&D Pvt Ltd"
+     },
+     {
+      "size": 13.5,
+      "text": "On the certificate: 03 Feb 2025 – 03 Mar"
+     },
+     {
+      "size": 13.5,
+      "text": "✓Applied regression, classification and "
+     },
+     {
+      "size": 13.5,
+      "text": "✓Handled preprocessing and feature engin"
+     },
+     {
+      "size": 13.5,
+      "text": "✓Built and evaluated models in Python, S"
+     },
+     {
+      "size": 13.5,
+      "text": "Tools: Python, Scikit-learn, Jupyter"
+     }
+    ],
+    "tinyTextCount": 6
+   },
+   "certificates": {
+    "overflow": 0,
+    "smallTargets": [
+     {
+      "w": 24,
+      "h": 24,
+      "label": "1. Drive to Home (Ocean Drive)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "2. Drive to About (Rooftop Pool)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "3. Drive to Projects (Billboard Highway)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "4. Drive to Experience (Beach Café)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "5. Drive to Certificates (Trophy Garage)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "6. Drive to Skills (Marina)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "7. Drive to Contact (The Pier)"
+     },
+     {
+      "w": 85,
+      "h": 34,
+      "label": "Résumé"
+     },
+     {
+      "w": 72,
+      "h": 34,
+      "label": "Turn the radio on"
+     },
+     {
+      "w": 70,
+      "h": 40,
+      "label": "All8"
+     },
+     {
+      "w": 92,
+      "h": 40,
+      "label": "Cloud2"
+     },
+     {
+      "w": 66,
+      "h": 40,
+      "label": "AI2"
+     },
+     {
+      "w": 84,
+      "h": 40,
+      "label": "Data2"
+     },
+     {
+      "w": 130,
+      "h": 40,
+      "label": "Networking2"
+     }
+    ],
+    "tinyText": [
+     {
+      "size": 15.5,
+      "text": "8 earned. Pick a plaque to open it in Ph"
+     }
+    ],
+    "tinyTextCount": 1
+   },
+   "skills": {
+    "overflow": 0,
+    "smallTargets": [
+     {
+      "w": 24,
+      "h": 24,
+      "label": "1. Drive to Home (Ocean Drive)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "2. Drive to About (Rooftop Pool)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "3. Drive to Projects (Billboard Highway)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "4. Drive to Experience (Beach Café)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "5. Drive to Certificates (Trophy Garage)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "6. Drive to Skills (Marina), current loc"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "7. Drive to Contact (The Pier)"
+     },
+     {
+      "w": 85,
+      "h": 34,
+      "label": "Résumé"
+     },
+     {
+      "w": 72,
+      "h": 34,
+      "label": "Turn the radio on"
+     }
+    ],
+    "tinyText": [],
+    "tinyTextCount": 0
+   },
+   "contact": {
+    "overflow": 0,
+    "smallTargets": [
+     {
+      "w": 24,
+      "h": 24,
+      "label": "1. Drive to Home (Ocean Drive)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "2. Drive to About (Rooftop Pool)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "3. Drive to Projects (Billboard Highway)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "4. Drive to Experience (Beach Café)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "5. Drive to Certificates (Trophy Garage)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "6. Drive to Skills (Marina)"
+     },
+     {
+      "w": 24,
+      "h": 24,
+      "label": "7. Drive to Contact (The Pier), current "
+     },
+     {
+      "w": 85,
+      "h": 34,
+      "label": "Résumé"
+     },
+     {
+      "w": 72,
+      "h": 34,
+      "label": "Turn the radio on"
+     }
+    ],
+    "tinyText": [
+     {
+      "size": 13.5,
+      "text": "Networking · Cloud · DevOps · ML"
+     }
+    ],
+    "tinyTextCount": 1
+   }
+  }
+ }
+}

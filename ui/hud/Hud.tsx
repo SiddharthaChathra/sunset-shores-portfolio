@@ -8,6 +8,8 @@ import { useApp } from "@/lib/store";
 import { rig } from "@/lib/rig";
 import { scrollToSection } from "@/lib/scroll";
 import { setSoundEnabled, sfx } from "@/lib/audio";
+import { deviceMode, useDeviceMode } from "@/lib/device";
+import dynamic from "next/dynamic";
 
 /** Waypoints along the coastal road (minimap units, 0..100). */
 const WAYPOINTS: [number, number][] = [
@@ -22,11 +24,11 @@ const WAYPOINTS: [number, number][] = [
 const ROAD = "M" + WAYPOINTS.map(([x, y]) => `${x} ${y}`).join(" L");
 
 /** Neon "SC" monogram that flickers on tube by tube at load. */
-export function Monogram({ size = 46 }: { size?: number }) {
+export function Monogram({ size = 46, className = "" }: { size?: number; className?: string }) {
   return (
     <span
       aria-hidden
-      className="relative inline-flex items-center justify-center rounded-[14px] bg-ink font-display text-[22px] tracking-[0.04em]"
+      className={`relative inline-flex items-center justify-center rounded-[14px] bg-ink font-display text-[22px] tracking-[0.04em] ${className}`}
       style={{ width: size, height: size, boxShadow: "0 0 0 2px rgb(255 79 139 / 0.55), 0 8px 22px rgb(255 79 139 / 0.35)" }}
     >
       <span className="neon-tube" style={{ animation: "tube-on 1.1s steps(1) 0.3s both" }}>
@@ -39,8 +41,8 @@ export function Monogram({ size = 46 }: { size?: number }) {
   );
 }
 
-function Minimap() {
-  const active = useApp((s) => s.active);
+/** The coastal map drawing with the live position arrow and the progress fill along the road. */
+export function MapArt({ className, label }: { className: string; label?: string }) {
   const arrow = useRef<SVGGElement>(null);
   const fill = useRef<SVGPathElement>(null);
 
@@ -71,8 +73,7 @@ function Minimap() {
   }, []);
 
   return (
-    <nav aria-label="Map" className="relative">
-      <svg viewBox="0 0 100 100" className="h-[136px] w-[136px] max-md:h-[56px] max-md:w-[56px] rounded-full shadow-[0_14px_34px_rgb(255_79_139/0.3),0_0_0_3px_#fff,0_0_0_5px_rgb(255_79_139/0.5)]" role="presentation">
+    <svg viewBox="0 0 100 100" className={className} role={label ? "img" : "presentation"} aria-label={label}>
         <defs>
           <clipPath id="mm-clip">
             <circle cx="50" cy="50" r="50" />
@@ -97,9 +98,20 @@ function Minimap() {
           </g>
         </g>
         <circle cx="50" cy="50" r="49" fill="none" stroke="#fff" strokeWidth="2" />
-      </svg>
-      {/* Waypoints are real buttons positioned over the map. */}
-      <ol className="absolute inset-0 max-md:hidden">
+    </svg>
+  );
+}
+
+export const WAYPOINT_XY = WAYPOINTS;
+
+function Minimap() {
+  const active = useApp((s) => s.active);
+  const setSheet = useApp((s) => s.setSheet);
+  return (
+    <nav aria-label="Map" className="relative land:hidden">
+      <MapArt className="h-[136px] w-[136px] rounded-full shadow-[0_14px_34px_rgb(255_79_139/0.3),0_0_0_3px_#fff,0_0_0_5px_rgb(255_79_139/0.5)] stack:h-[56px] stack:w-[56px] tabp:h-[88px] tabp:w-[88px]" />
+      {/* Waypoints are real buttons positioned over the map (desktop). */}
+      <ol className="absolute inset-0 app:hidden touch:hidden">
         {SECTION_ORDER.map((id, i) => {
           const [x, y] = WAYPOINTS[i];
           const on = active === i;
@@ -134,12 +146,16 @@ function Minimap() {
           );
         })}
       </ol>
-      {/* Phones: the mini map itself jumps to the next waypoint. */}
+      {/* Phones and tablets: the minimap opens the full-screen map sheet. */}
       <button
         type="button"
-        className="absolute inset-0 rounded-full md:hidden"
-        aria-label={`Map: you are at ${world.locations[SECTION_ORDER[active]]}. Drive to the next stop.`}
-        onClick={() => scrollToSection(Math.min(SECTION_ORDER.length - 1, active + 1))}
+        data-testid="minimap-open"
+        className="absolute -inset-1 rounded-full frame:hidden touch:block"
+        aria-label={`Open the map. You are at ${world.locations[SECTION_ORDER[active]]}.`}
+        onClick={() => {
+          sfx("click");
+          setSheet("map");
+        }}
       />
     </nav>
   );
@@ -149,19 +165,56 @@ function Minimap() {
 function LocationCard() {
   const active = useApp((s) => s.active);
   const loadingDone = useApp((s) => s.loadingDone);
+  const mode = useDeviceMode();
   const [shown, setShown] = useState<number | null>(null);
+  const hold = mode === "frame" ? 1600 : 1200;
+  // desktop layout under 1280 px or on a touch tablet: the compact pill, tucked under the HUD
+  const [compactFrame, setCompactFrame] = useState(false);
+  useEffect(() => {
+    const m = window.matchMedia("(max-width: 1279.98px), (pointer: coarse)");
+    const on = () => setCompactFrame(m.matches);
+    on();
+    m.addEventListener("change", on);
+    return () => m.removeEventListener("change", on);
+  }, []);
   useEffect(() => {
     if (!loadingDone) return;
     const settle = setTimeout(() => setShown(active), 350);
-    const hide = setTimeout(() => setShown((s) => (s === active ? null : s)), 350 + 450 + 1600);
+    const hide = setTimeout(() => setShown((s) => (s === active ? null : s)), 350 + 450 + hold);
     return () => {
       clearTimeout(settle);
       clearTimeout(hide);
     };
-  }, [active, loadingDone]);
+  }, [active, loadingDone, hold]);
   const id = shown === null ? null : SECTION_ORDER[shown];
+  if (mode !== "frame" || compactFrame)
+    return (
+      // Mobile: a compact pill on the bottom edge of the scene window, never over the app content.
+      // Narrow desktop / touch tablet: the same pill, top centre in the HUD row (between name and minimap).
+      <div
+        data-hud-overlay
+        className={`pointer-events-none fixed z-30 ${mode === "frame" ? "top-[26px] left-1/2 -translate-x-1/2" : "top-[calc(var(--scene-h)-50px)] left-[calc(var(--gutter)+var(--safe-l))] land:top-auto land:bottom-4"}`}
+        aria-live="polite"
+      >
+        <AnimatePresence>
+          {id && (
+            <motion.p
+              key={id}
+              initial={{ x: -24, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="flex items-center gap-2 rounded-full bg-ink/85 py-1.5 pr-3.5 pl-3 text-white shadow-[0_8px_20px_rgb(35_32_58/0.3)] backdrop-blur"
+            >
+              <span className="display skew text-[clamp(1.1rem,5vw,1.5rem)] text-[#FFD7A8] italic">{world.labels[id]}</span>
+              <span className="font-mono text-[11px] tracking-[0.16em] uppercase">{world.locations[id]}</span>
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </div>
+    );
   return (
-    <div data-hud-overlay className="pointer-events-none fixed bottom-7 left-[clamp(16px,3vw,44px)] z-30 max-md:bottom-5" aria-live="polite">
+    <div data-hud-overlay className="pointer-events-none fixed bottom-7 left-[clamp(16px,3vw,44px)] z-30" aria-live="polite">
       <AnimatePresence>
         {id && (
           <motion.div
@@ -208,7 +261,7 @@ function SectionToasts() {
           } catch {}
           setToast(world.labels[id]);
           clearTimeout(t);
-          t = setTimeout(() => setToast(null), 900);
+          t = setTimeout(() => setToast(null), deviceMode() === "frame" ? 900 : 800);
         }
       });
       raf = requestAnimationFrame(loop);
@@ -220,7 +273,7 @@ function SectionToasts() {
     };
   }, []);
   return (
-    <div data-hud-overlay className="pointer-events-none fixed top-[calc(var(--hud-h)+6px)] left-1/2 z-30 -translate-x-1/2" role="status" aria-live="polite">
+    <div data-hud-overlay className="pointer-events-none fixed top-[calc(var(--hud-h)+6px)] left-1/2 z-30 -translate-x-1/2 app:top-[calc(var(--safe-t)+16px)]" role="status" aria-live="polite">
       <AnimatePresence>
         {toast && (
           <motion.p
@@ -229,7 +282,7 @@ function SectionToasts() {
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: -8, opacity: 0 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="wipe-in rounded-full bg-ink px-5 py-1.5 font-display text-[18px] tracking-[0.08em] text-white uppercase shadow-[0_10px_26px_rgb(255_79_139/0.35)]"
+            className="wipe-in rounded-full bg-ink px-5 py-1.5 font-display text-[18px] tracking-[0.08em] text-white uppercase shadow-[0_10px_26px_rgb(255_79_139/0.35)] app:px-4 app:py-1 app:text-[15px]"
           >
             {toast} <span className="text-[#FF9F43]">✓</span>
           </motion.p>
@@ -254,8 +307,8 @@ function SpeedLines() {
       const target = Math.min(1, Math.max(0, (Math.abs(rig.velocity) - 18) / 40));
       level += (target - level) * 0.15;
       if (level > 0.6) sfx("whoosh");
-      const w = window.innerWidth;
-      const h = window.innerHeight;
+      const w = c.clientWidth;
+      const h = c.clientHeight;
       if (c.width !== w || c.height !== h) {
         c.width = w;
         c.height = h;
@@ -285,7 +338,7 @@ function SpeedLines() {
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
   }, []);
-  return <canvas ref={canvas} data-hud-overlay aria-hidden className="pointer-events-none fixed inset-0 z-[5]" />;
+  return <canvas ref={canvas} data-hud-overlay aria-hidden className="pointer-events-none fixed inset-x-0 top-0 z-[5] h-[100svh] w-full stack:z-[21] stack:h-[var(--scene-h)]" />;
 }
 
 /** Thin gradient progress line along the bottom edge, with speedometer ticks. */
@@ -301,7 +354,7 @@ function ProgressLine() {
     return () => cancelAnimationFrame(raf);
   }, []);
   return (
-    <div data-hud-overlay aria-hidden className="pointer-events-none fixed inset-x-0 bottom-0 z-30 h-[4px] bg-ink/10">
+    <div data-hud-overlay aria-hidden className="pointer-events-none fixed inset-x-0 bottom-[var(--safe-b)] z-[45] h-[4px] bg-ink/10 app:h-[3px]">
       <span ref={bar} className="block h-full origin-left" style={{ background: "var(--grad)", transform: "scaleX(0)" }} />
       <div className="absolute inset-0 flex justify-between px-[1px]">
         {SECTION_ORDER.map((id) => (
@@ -311,6 +364,9 @@ function ProgressLine() {
     </div>
   );
 }
+
+// phones/tablets only: dock, map and "More" sheets (loaded after first paint)
+const MobileNav = dynamic(() => import("./MobileNav").then((m) => m.MobileNav), { ssr: false });
 
 export function Hud() {
   const sound = useApp((s) => s.sound);
@@ -337,7 +393,7 @@ export function Hud() {
         <a href="#about" className="sr-only-focusable pointer-events-auto absolute top-2 left-2 z-50 rounded-lg bg-white px-3 py-2 text-sm font-bold text-ink">
           Skip to content
         </a>
-        <div className="flex items-start justify-between px-[clamp(14px,2.4vw,32px)] pt-4">
+        <div className="flex items-start justify-between px-[clamp(14px,2.4vw,32px)] pt-4 app:px-[calc(14px+var(--safe-l))] app:pt-[calc(var(--safe-t)+10px)]">
           <a
             href="#hero"
             onClick={(e) => {
@@ -348,7 +404,7 @@ export function Hud() {
             className="pointer-events-auto flex items-center gap-3 rounded-2xl"
           >
             <span className="sr-only">Back to top: </span>
-            <Monogram />
+            <Monogram className="app:!h-[44px] app:!w-[44px] app:!rounded-[12px] app:!text-[17px]" />
             <span className="hidden flex-col leading-tight lg:flex">
               <span className="text-[15px] font-extrabold text-ink">{profile.name}</span>
               <span className="font-mono text-[11px] tracking-[0.12em] text-ink-soft uppercase">{world.name} · Portfolio</span>
@@ -356,13 +412,14 @@ export function Hud() {
           </a>
           <div className="pointer-events-auto flex flex-col items-end gap-2.5">
             <Minimap />
-            <div className="flex items-center gap-2">
-              <a href={profile.links.resume} download="Siddhartha_Chathra_BS_Resume.pdf" className="btn btn-primary btn-sm !h-[34px] !px-4 !text-[13px]" onClick={() => sfx("click")}>
+            {/* Résumé + radio: in the HUD on desktop; in the "More" sheet / cinematic bar on mobile */}
+            <div className="flex items-center gap-2 app:hidden">
+              <a href={profile.links.resume} download="Siddhartha_Chathra_BS_Resume.pdf" className="btn btn-primary btn-sm !h-[34px] !px-4 !text-[13px] touch:!h-11" onClick={() => sfx("click")}>
                 Résumé
               </a>
               <button
                 type="button"
-                className="btn btn-ghost btn-sm !h-[34px] !px-3 !text-[12px]"
+                className="btn btn-ghost btn-sm !h-[34px] !px-3 !text-[12px] touch:!h-11"
                 aria-pressed={sound}
                 aria-label={sound ? "Turn the radio off" : "Turn the radio on"}
                 onClick={() => setSoundEnabled(!sound)}
@@ -383,6 +440,7 @@ export function Hud() {
       <LocationCard />
       <SectionToasts />
       <ProgressLine />
+      <MobileNav />
     </>
   );
 }

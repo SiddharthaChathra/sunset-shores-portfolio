@@ -11,6 +11,8 @@ import { GeoBuilder, vertexColorMaterial } from "../props/geo";
 import { hash } from "../noise";
 
 const MAX_ORBIT = THREE.MathUtils.degToRad(25);
+/** Touch drag on the phone/tablet scene window: ±15°. */
+const MAX_ORBIT_TOUCH = THREE.MathUtils.degToRad(15);
 const mat = vertexColorMaterial(0.7);
 
 /** Beach set dressing for Ocean Drive: striped umbrellas, loungers and a pastel lifeguard tower. */
@@ -60,18 +62,29 @@ function OrbitDrag() {
   const gl = useThree((s) => s.gl);
   useEffect(() => {
     const el = gl.domElement;
-    let down: { x: number; o: number } | null = null;
+    let down: { x: number; y: number; o: number; touch: boolean; locked: boolean } | null = null;
     const onDown = (e: PointerEvent) => {
-      if (camState.heroWeight < 0.5 || e.pointerType === "touch") return;
-      down = { x: e.clientX, o: rig.orbit };
+      if (camState.heroWeight < 0.5) return;
+      down = { x: e.clientX, y: e.clientY, o: rig.orbit, touch: e.pointerType === "touch", locked: e.pointerType !== "touch" };
     };
     const onMove = (e: PointerEvent) => {
       if (!down) {
         el.style.cursor = camState.heroWeight > 0.5 ? "grab" : "";
         return;
       }
+      const dx = e.clientX - down.x;
+      // touch: decide after 10 px; a vertical drag belongs to the page scroll (the browser takes it)
+      if (!down.locked) {
+        if (Math.hypot(dx, e.clientY - down.y) < 10) return;
+        if (Math.abs(e.clientY - down.y) > Math.abs(dx)) {
+          down = null;
+          return;
+        }
+        down.locked = true;
+      }
       el.style.cursor = "grabbing";
-      rig.orbit = THREE.MathUtils.clamp(down.o - (e.clientX - down.x) * 0.0035, -MAX_ORBIT, MAX_ORBIT);
+      const max = down.touch ? MAX_ORBIT_TOUCH : MAX_ORBIT;
+      rig.orbit = THREE.MathUtils.clamp(down.o - dx * (down.touch ? 0.006 : 0.0035), -max, max);
     };
     const onUp = () => {
       down = null;
@@ -79,10 +92,12 @@ function OrbitDrag() {
     el.addEventListener("pointerdown", onDown);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
     return () => {
       el.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
     };
   }, [gl]);
   useFrame((_, dt) => {

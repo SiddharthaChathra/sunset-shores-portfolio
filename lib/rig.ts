@@ -30,6 +30,8 @@ export const rig = {
   maxScroll: 0,
   /** Capture mode (stills generation): hides HTML, snaps camera to stops. */
   capture: false,
+  /** Short screens: the Projects carousel (not the page scroll) picks the active project. */
+  projectLocked: false,
 };
 
 export const smootherstep = (t: number) => {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect } from "react";
+import { useDeviceMode } from "./device";
 
 /** Scroll progress (0..1) through a section's sticky span: 0 when its top reaches the viewport top. */
 export function sectionProgress(id: string): number {
@@ -32,18 +33,7 @@ export function useSectionFrame(id: string, onFrame: (p: number) => void) {
   }, [id, onFrame]);
 }
 
-const MQ = "(min-width: 700px)";
-const subscribe = (cb: () => void) => {
-  const mq = window.matchMedia(MQ);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-};
-
-/** True on viewports where the phone is a framed device (≥ 700px wide). */
+/** True where the phone is a framed device (desktop and tablet landscape); false on the frameless app layouts. */
 export function useFramedPhone() {
-  return useSyncExternalStore(
-    subscribe,
-    () => window.matchMedia(MQ).matches,
-    () => true,
-  );
+  return useDeviceMode() === "frame";
 }

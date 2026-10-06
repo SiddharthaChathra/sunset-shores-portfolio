@@ -7,13 +7,17 @@ import { theme } from "@/theme/theme";
 import { useApp } from "@/lib/store";
 import { sfx } from "@/lib/audio";
 import { useFocusTrap } from "@/lib/useFocusTrap";
+import { useBackToClose } from "@/lib/useBackToClose";
+import { deviceMode, type DeviceMode } from "@/lib/device";
 import { Panel } from "./Panel";
 
-/** Bubble size: smaller on phones, where it floats over the content column. (Client-only module.) */
-export const ORB = typeof window !== "undefined" && window.innerWidth < 700 ? 52 : 64;
-const MARGIN = 20;
+/** Bubble size per device: 56 on phones, 60 on tablets / phone landscape, 64 on desktop. Client-only module. */
+const orbFor = (m: DeviceMode) => (m === "phone" ? 56 : m === "frame" ? 64 : 60);
+export let ORB = typeof window !== "undefined" ? orbFor(deviceMode()) : 64;
+const MARGIN = 14;
 const DRAG_THRESHOLD = 8;
-const STORE_KEY = "sc-orb";
+/** Position persists per device class (a phone layout and a desktop layout want different spots). */
+const storeKey = () => `sc-orb-${deviceMode()}`;
 const SEEN_KEY = "sc-assistant-seen";
 
 type Edge = "left" | "right" | "bottom";
@@ -27,6 +31,16 @@ function hudBottom() {
   return (parseFloat(v) || 76) + 12;
 }
 
+/** Bottom limit: clear of the dock (phones/tablets) and the home indicator. */
+function bottomLimit() {
+  const cs = getComputedStyle(document.documentElement);
+  const dock = document.querySelector<HTMLElement>('[data-testid="dock"]');
+  const dockTop = dock ? dock.getBoundingClientRect().top : window.innerHeight;
+  const safe = parseFloat(cs.getPropertyValue("--safe-b")) || 0;
+  return Math.min(window.innerHeight - safe - 10, dockTop - 10) - ORB;
+}
+const mobile = () => deviceMode() !== "frame";
+
 /** Areas the bubble must never cover: the minimap/HUD column (top-right) and the monogram (top-left). */
 function hudBlock(): { right: number; bottom: number } {
   const map = document.querySelector<HTMLElement>('nav[aria-label="Map"]')?.parentElement;
@@ -39,17 +53,21 @@ function edgeToXY(s: Saved) {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const top = s.edge === "right" ? Math.max(hudBottom(), hudBlock().bottom) : hudBottom();
-  if (s.edge === "bottom") return { x: MARGIN + s.t * (vw - ORB - MARGIN * 2), y: vh - ORB - MARGIN - 6 };
-  const y = top + s.t * (vh - ORB - MARGIN - 6 - top);
-  return { x: s.edge === "left" ? MARGIN : vw - ORB - MARGIN, y };
+  const bottom = mobile() ? bottomLimit() : vh - ORB - MARGIN - 6;
+  if (s.edge === "bottom" && !mobile()) return { x: MARGIN + s.t * (vw - ORB - MARGIN * 2), y: bottom };
+  const edge = s.edge === "bottom" ? "right" : s.edge;
+  const y = top + Math.min(1, Math.max(0, s.t)) * Math.max(0, bottom - top);
+  return { x: edge === "left" ? MARGIN : vw - ORB - MARGIN, y };
 }
 
 function nearestEdge(x: number, y: number): Saved {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const opts = (["right", "left", "bottom"] as Edge[]).map((edge) => {
+  // mobile snaps to the left or right edge only (the dock owns the bottom)
+  const opts = ((mobile() ? ["right", "left"] : ["right", "left", "bottom"]) as Edge[]).map((edge) => {
     const top = edge === "right" ? Math.max(hudBottom(), hudBlock().bottom) : hudBottom();
-    const span = Math.max(1, vh - ORB - MARGIN - 6 - top);
+    const bottom = mobile() ? bottomLimit() : vh - ORB - MARGIN - 6;
+    const span = Math.max(1, bottom - top);
     const d = edge === "right" ? vw - ORB - MARGIN - x : edge === "left" ? x - MARGIN : vh - ORB - MARGIN - y;
     const t = edge === "bottom" ? (x - MARGIN) / Math.max(1, vw - ORB - MARGIN * 2) : (y - top) / span;
     return { edge, d: Math.abs(d), t: Math.min(1, Math.max(0, t)) };
@@ -109,14 +127,14 @@ export default function Companion() {
   const panel = useRef<HTMLDivElement>(null);
   const [initial] = useState<Saved>(() => {
     try {
-      const raw = localStorage.getItem(STORE_KEY);
+      const raw = localStorage.getItem(storeKey());
       if (raw) {
         const v = JSON.parse(raw) as Saved;
         if ((v.edge === "left" || v.edge === "right" || v.edge === "bottom") && typeof v.t === "number") return v;
       }
     } catch {}
-    // phones: tuck into the bottom-right corner so it covers less of the content
-    return window.innerWidth < 700 ? { edge: "bottom", t: 1 } : { edge: "right", t: 0.92 };
+    // phones/tablets: bottom-right, just above the dock; desktop: right edge, low
+    return mobile() ? { edge: "right", t: 1 } : { edge: "right", t: 0.92 };
   });
   const [pos, setPos] = useState<{ x: number; y: number }>(() => edgeToXY(initial));
   const [edge, setEdge] = useState<Edge>(initial.edge);
@@ -170,8 +188,9 @@ export default function Companion() {
       const s = nearestEdge(x, y);
       setEdge(s.edge);
       try {
-        localStorage.setItem(STORE_KEY, JSON.stringify(s));
+        localStorage.setItem(storeKey(), JSON.stringify(s));
       } catch {}
+      if (mobile()) navigator.vibrate?.(8); // haptic tick on snap
       target.current = edgeToXY(s);
       cancelAnimationFrame(anim.current);
       anim.current = requestAnimationFrame(animate);
@@ -181,8 +200,15 @@ export default function Companion() {
 
   useEffect(() => {
     apply(posRef.current.x, posRef.current.y);
+    // rotation / resize: resize for the device class, restore its saved spot, and re-clamp
     const onResize = () => {
-      const q = edgeToXY(nearestEdge(posRef.current.x, posRef.current.y));
+      ORB = orbFor(deviceMode());
+      let s: Saved | null = null;
+      try {
+        const raw = localStorage.getItem(storeKey());
+        if (raw) s = JSON.parse(raw) as Saved;
+      } catch {}
+      const q = edgeToXY(s ?? nearestEdge(posRef.current.x, posRef.current.y));
       apply(q.x, q.y);
       setPos(q);
     };
@@ -217,6 +243,34 @@ export default function Companion() {
   }, [open]);
 
   useFocusTrap(panel, open);
+
+  // Mobile: while the page scrolls down the bubble tucks half off its edge (and fades), so it never sits
+  // over the text being read; it slides back on scroll-up or after a short pause.
+  const tuckRef = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    let raf = 0;
+    let lastY = window.scrollY;
+    let still = 0;
+    let tucked = false;
+    const loop = () => {
+      const y = window.scrollY;
+      const dy = y - lastY;
+      lastY = y;
+      still = Math.abs(dy) < 1 ? still + 1 : 0;
+      const want = mobile() && !useApp.getState().assistantOpen && !drag.current && (dy > 2 || (tucked && dy >= 0 && still < 45));
+      if (want !== tucked && tuckRef.current) {
+        tucked = want;
+        const side = posRef.current.x > window.innerWidth / 2 ? 1 : -1;
+        tuckRef.current.style.transform = want ? `translateX(${side * 58}%) scale(0.86)` : "";
+        tuckRef.current.style.opacity = want ? "0.55" : "";
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  // Android Back closes the assistant instead of leaving the site
+  useBackToClose(open, () => setOpen(false));
 
   const onPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
     if (e.button !== 0) return;
@@ -258,7 +312,7 @@ export default function Companion() {
         ref={btn}
         type="button"
         data-testid="companion-orb"
-        aria-label={open ? `Close ${theme.companion.name}` : `Open ${theme.companion.name}, ask about Siddhartha (Ctrl+K)`}
+        aria-label={open ? `Close ${theme.companion.name}` : `Ask about Sid · Ctrl K: open ${theme.companion.name}`}
         aria-expanded={open}
         aria-controls="echo-panel"
         aria-keyshortcuts="Control+K Meta+K"
@@ -277,14 +331,17 @@ export default function Companion() {
         }}
         onClick={(e) => e.preventDefault()}
         className="group fixed top-0 left-0 z-[70] touch-none rounded-full select-none"
+        data-edge={edge}
         style={{ width: ORB, height: ORB, cursor: "grab" }}
       >
         <span aria-hidden className="absolute -inset-2 rounded-full opacity-60 blur-md transition-opacity group-hover:opacity-100" style={{ background: "conic-gradient(from 90deg,#FF4F8B,#FF9F43,#2EC4B6,#8B6CFF,#FF4F8B)" }} />
-        <SiriOrb active={open} className="transition-transform duration-300 group-hover:scale-[1.06]" />
+        <span ref={tuckRef} className="absolute inset-0 block transition-[transform,opacity] duration-300 ease-out">
+          <SiriOrb active={open} className="transition-transform duration-300 group-hover:scale-[1.06]" />
+        </span>
         {!seen && !open && (
           <span aria-hidden className="absolute -top-1 -right-1 flex h-6 min-w-6 items-center justify-center rounded-full bg-[#FF9F43] px-1.5 font-mono text-[11px] font-bold text-ink shadow-[0_0_0_2px_#fff]">
             <span className="pulse-ring absolute inset-0 rounded-full bg-[#FF9F43]" />
-            <span className="relative">1</span>
+            <span className="relative after:content-['1']" />
           </span>
         )}
         <span

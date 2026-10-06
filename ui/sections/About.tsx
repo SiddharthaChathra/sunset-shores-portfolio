@@ -44,9 +44,9 @@ function StatCard({ value, label, index }: { value: number; label: string; index
           sfx("chime");
         }}
         className="card w-full rounded-[16px] px-3 py-3 text-left transition-transform hover:-translate-y-0.5"
-        aria-label={`${value} ${label}. Activate to replay the counter.`}
+        aria-label={`${String(value).padStart(2, "0")} ${label}. Activate to replay the counter.`}
       >
-        <span className="display block text-[34px] leading-none text-ink tabular-nums">{String(v).padStart(2, "0")}</span>
+        <span className="display block text-[34px] leading-none text-ink tabular-nums">{String(v).padStart(2, "0")}</span>{" "}
         <span className="mt-1 block font-mono text-[10.5px] font-bold tracking-[0.12em] max-[420px]:text-[9.5px] max-[420px]:tracking-[0.04em] text-accent-strong uppercase">{label}</span>
       </Tap>
       <AnimatePresence>
@@ -69,9 +69,9 @@ function StatCard({ value, label, index }: { value: number; label: string; index
 
 export function About() {
   return (
-    <section id="about" data-section tabIndex={-1} aria-labelledby="about-title" className="section min-[700px]:h-[170vh]">
-      <div className="min-[700px]:sticky min-[700px]:top-0 min-[700px]:h-[100svh]">
-        <div className="section-inner flex items-center justify-end max-md:justify-center max-md:!pt-[40svh] min-[700px]:h-full min-[700px]:!min-h-0 lg:pr-[190px]">
+    <section id="about" data-section tabIndex={-1} aria-labelledby="about-title" className="section frame:h-[170vh]">
+      <div className="frame:sticky frame:top-0 frame:h-[100svh]">
+        <div className="section-inner flex items-center justify-end app:items-start app:justify-center frame:h-full frame:!min-h-0 lg:pr-[190px]">
           <Phone app="profile" title="Profile" subtitle={`@siddhartha · ${profile.education.school.split(" (")[0]}`} testId="profile-app">
             <ScrollLinked section="about">
               <div className="px-5 pt-5 pb-8">
@@ -98,7 +98,7 @@ export function About() {
                     <h2 id="about-title" className="text-[21px] leading-tight font-extrabold text-ink">
                       {profile.name}
                     </h2>
-                    <p className="mt-1 text-[13.5px] leading-snug font-semibold text-ink-soft">
+                    <p className="mt-1 text-[13.5px] leading-snug font-semibold text-ink-soft app:text-[16px]">
                       Information Science & Engineering @ NMAMIT · CGPA {profile.education.cgpa} · {profile.education.graduation}
                     </p>
                   </div>
@@ -110,7 +110,7 @@ export function About() {
                   ))}
                 </div>
 
-                <div className="mt-5 space-y-3 text-[14.5px] leading-[1.6] text-ink">
+                <div className="mt-5 space-y-3 text-[14.5px] leading-[1.6] text-ink app:text-[16px]">
                   {profile.bio.map((p) => (
                     <p key={p.slice(0, 24)}>{p}</p>
                   ))}
@@ -119,7 +119,7 @@ export function About() {
                 <div className="card mt-5 p-4">
                   <p className="kicker !text-[11px]">Education</p>
                   <p className="mt-1 text-[15px] leading-snug font-extrabold text-ink">{profile.education.degree}</p>
-                  <p className="text-[13.5px] text-ink-soft">{profile.education.school}</p>
+                  <p className="text-[13.5px] text-ink-soft app:text-[16px]">{profile.education.school}</p>
                   <p className="mt-1 font-mono text-[12px] text-ink-soft">{profile.education.period}</p>
                   <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Relevant coursework">
                     {profile.education.coursework.map((c) => (
@@ -138,8 +138,8 @@ export function About() {
                       </svg>
                     </span>
                     <div>
-                      <p className="text-[14.5px] font-extrabold text-ink">Side quest · Ripple Factor Crew</p>
-                      <p className="text-[13.5px] leading-relaxed text-ink">{profile.sideQuest.text}</p>
+                      <p className="text-[14.5px] font-extrabold text-ink app:text-[16px]">Side quest · Ripple Factor Crew</p>
+                      <p className="text-[13.5px] leading-relaxed text-ink app:text-[16px]">{profile.sideQuest.text}</p>
                     </div>
                   </div>
                 </div>

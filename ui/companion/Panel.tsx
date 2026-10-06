@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion, useDragControls } from "motion/react";
+import { useDeviceMode } from "@/lib/device";
 import { theme } from "@/theme/theme";
 import { Phone } from "../phone/Phone";
 import { ShaderCanvas, hex3 } from "./ShaderCanvas";
@@ -62,7 +64,7 @@ function Bubble({ m, last, streaming }: { m: Msg; last: boolean; streaming: bool
   }
   return (
     <li className="max-w-[88%] self-start" data-testid="echo-reply">
-      <div className={`rounded-[20px] rounded-bl-[6px] px-4 py-2.5 text-[14px] leading-relaxed text-ink ${m.error ? "bg-[#fff0ea] shadow-[inset_0_0_0_1.5px_#FF7A59]" : "card"}`}>
+      <div className={`rounded-[20px] rounded-bl-[6px] px-4 py-2.5 text-[14px] leading-relaxed text-ink app:text-[16px] ${m.error ? "bg-[#fff0ea] shadow-[inset_0_0_0_1.5px_#FF7A59]" : "card"}`}>
         {m.content ? (
           <Typewriter text={m.content} done={!(last && streaming)} />
         ) : (
@@ -78,6 +80,9 @@ function Bubble({ m, last, streaming }: { m: Msg; last: boolean; streaming: bool
 }
 
 export function Panel({ edge, orb, onClose }: { edge: "left" | "right" | "bottom"; orb: { x: number; y: number }; onClose: () => void }) {
+  const mode = useDeviceMode();
+  const sheet = mode === "phone" || mode === "land";
+  const drag = useDragControls();
   const { messages, state, send, toggleMic, micSupported, interim, voiceOut, setVoiceOut, level, pulse } = useEcho();
   const [input, setInput] = useState("");
   const list = useRef<HTMLUListElement>(null);
@@ -89,15 +94,24 @@ export function Panel({ edge, orb, onClose }: { edge: "left" | "right" | "bottom
   }, [messages, state]);
 
   useEffect(() => {
+    const vv = window.visualViewport;
     const place = () => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
-      const W = 392;
-      const H = Math.min(640, vh - 40);
-      if (vw < 700) {
-        setLayout({ left: 8, right: 8, top: 8, bottom: 8 });
+      if (sheet) {
+        // bottom sheet, keyboard-aware: sits on top of the on-screen keyboard and shrinks instead of jumping
+        const visibleH = vv ? vv.height : vh;
+        const keyboard = vv ? Math.max(0, vh - (vv.offsetTop + vv.height)) : 0;
+        const H = Math.min(vh * 0.92, visibleH - 8);
+        setLayout(
+          mode === "land"
+            ? { right: 0, width: "min(520px, 100vw)", bottom: keyboard, height: H }
+            : { left: 0, right: 0, bottom: keyboard, height: H },
+        );
         return;
       }
+      const W = mode === "tabp" ? 420 : 392;
+      const H = Math.min(640, vh - 40);
       const top = Math.min(Math.max(20, orb.y - H / 2), vh - H - 20);
       if (edge === "right") setLayout({ width: W, height: H, top, right: vw - orb.x + 32 + 14 });
       else if (edge === "left") setLayout({ width: W, height: H, top, left: orb.x + 32 + 14 });
@@ -105,10 +119,41 @@ export function Panel({ edge, orb, onClose }: { edge: "left" | "right" | "bottom
     };
     place();
     window.addEventListener("resize", place);
-    return () => window.removeEventListener("resize", place);
-  }, [edge, orb.x, orb.y]);
+    vv?.addEventListener("resize", place);
+    vv?.addEventListener("scroll", place);
+    return () => {
+      window.removeEventListener("resize", place);
+      vv?.removeEventListener("resize", place);
+      vv?.removeEventListener("scroll", place);
+    };
+  }, [edge, orb.x, orb.y, sheet, mode]);
 
   const streaming = state === "thinking" || state === "speaking";
+  // Mic: tap toggles; press and hold talks while held (push-to-talk).
+  const hold = useRef<{ timer: ReturnType<typeof setTimeout> | null; held: boolean }>({ timer: null, held: false });
+  const micHandlers = {
+    onPointerDown: () => {
+      hold.current.held = false;
+      hold.current.timer = setTimeout(() => {
+        hold.current.held = true;
+        if (state !== "listening") toggleMic();
+      }, 320);
+    },
+    onPointerUp: () => {
+      if (hold.current.timer) clearTimeout(hold.current.timer);
+      toggleMic(); // a tap toggles; releasing a hold ends push-to-talk
+      hold.current.held = false;
+    },
+    onPointerLeave: () => {
+      if (hold.current.timer) clearTimeout(hold.current.timer);
+    },
+    onKeyDown: (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggleMic();
+      }
+    },
+  };
   const submit = (t: string) => {
     if (!t.trim()) return;
     send(t);
@@ -116,13 +161,30 @@ export function Panel({ edge, orb, onClose }: { edge: "left" | "right" | "bottom
   };
 
   return (
-    <div className="pointer-events-auto absolute" style={layout} data-testid="echo-panel">
+    <motion.div
+      className={`pointer-events-auto absolute ${sheet ? "flex flex-col overflow-hidden rounded-t-[28px] bg-paper shadow-[0_-20px_60px_rgb(35_32_58/0.25)]" : ""}`}
+      style={layout}
+      data-testid="echo-panel"
+      drag={sheet ? "y" : false}
+      dragListener={false}
+      dragControls={drag}
+      dragConstraints={{ top: 0, bottom: 0 }}
+      dragElastic={{ top: 0, bottom: 0.6 }}
+      onDragEnd={(_, info) => {
+        if (info.offset.y > 90 || info.velocity.y > 600) onClose();
+      }}
+    >
+      {sheet && (
+        <div className="flex shrink-0 touch-none justify-center pt-2.5 pb-1" onPointerDown={(e) => drag.start(e)} aria-hidden>
+          <span className="h-[5px] w-10 rounded-full bg-ink/20" />
+        </div>
+      )}
       <Phone
         app="messages"
         title={theme.companion.name}
         subtitle={undefined}
         height="100%"
-        className="!h-full"
+        className={sheet ? "!h-auto min-h-0 flex-1 !rounded-none !shadow-none" : "!h-full"}
         tilt={false}
         icon={
           <span className="block h-[34px] w-[34px] shrink-0">
@@ -150,7 +212,7 @@ export function Panel({ edge, orb, onClose }: { edge: "left" | "right" | "bottom
           <ul ref={list} className="mt-3 flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto px-4 pb-2" data-lenis-prevent aria-live="polite" aria-label="Conversation">
             {messages.length === 0 && (
               <li className="max-w-[88%] self-start">
-                <div className="card rounded-[20px] rounded-bl-[6px] px-4 py-2.5 text-[14px] leading-relaxed text-ink">
+                <div className="card rounded-[20px] rounded-bl-[6px] px-4 py-2.5 text-[14px] leading-relaxed text-ink app:text-[16px]">
                   Hey! I&apos;m Sid&apos;s Assistant. Ask me anything about his projects, internships, certificates or skills. Quick replies are just below.
                 </div>
               </li>
@@ -161,9 +223,9 @@ export function Panel({ edge, orb, onClose }: { edge: "left" | "right" | "bottom
             {interim && <li className="self-end text-[13px] text-ink-soft italic">{interim}</li>}
           </ul>
           <div className="border-t border-ink/8 bg-white/70 px-3 pt-2 pb-3">
-            <div className="mb-2 flex gap-1.5 overflow-x-auto pb-1" aria-label="Quick replies">
+            <div className="mb-2 flex gap-1.5 overflow-x-auto pb-1" role="group" aria-label="Quick replies" tabIndex={0}>
               {QUESTS.map((q) => (
-                <button key={q} type="button" disabled={streaming} onClick={() => submit(q)} className="pill shrink-0 !h-8 !text-[12.5px] whitespace-nowrap disabled:opacity-50">
+                <button key={q} type="button" disabled={streaming} onClick={() => submit(q)} className="pill shrink-0 !h-8 !text-[12.5px] whitespace-nowrap disabled:opacity-50 app:!h-11 app:!text-[14px]">
                   {q}
                 </button>
               ))}
@@ -186,15 +248,15 @@ export function Panel({ edge, orb, onClose }: { edge: "left" | "right" | "bottom
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="iMessage… ask about his work"
                 autoComplete="off"
-                className="h-11 min-w-0 flex-1 rounded-full bg-white px-4 text-[14px] text-ink shadow-[inset_0_0_0_1.5px_rgb(35_32_58/0.15)] outline-none placeholder:text-ink-soft focus:shadow-[inset_0_0_0_2px_var(--accent-strong)]"
+                className="h-11 min-w-0 flex-1 rounded-full bg-white px-4 text-[14px] text-ink app:h-12 app:text-[16px] shadow-[inset_0_0_0_1.5px_rgb(35_32_58/0.15)] outline-none placeholder:text-ink-soft focus:shadow-[inset_0_0_0_2px_var(--accent-strong)]"
               />
               {micSupported && (
                 <button
                   type="button"
-                  onClick={toggleMic}
+                  {...micHandlers}
                   aria-pressed={state === "listening"}
                   aria-label={state === "listening" ? "Stop listening" : "Speak your question"}
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${state === "listening" ? "bg-ink text-white" : "bg-white text-ink shadow-[inset_0_0_0_1.5px_rgb(35_32_58/0.15)]"}`}
+                  className={`flex h-11 w-11 shrink-0 touch-none items-center justify-center rounded-full app:h-14 app:w-14 ${state === "listening" ? "bg-ink text-white" : "bg-white text-ink shadow-[inset_0_0_0_1.5px_rgb(35_32_58/0.15)]"}`}
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.8">
                     <rect x="5.5" y="1.5" width="5" height="8" rx="2.5" />
@@ -206,7 +268,7 @@ export function Panel({ edge, orb, onClose }: { edge: "left" | "right" | "bottom
                 type="submit"
                 disabled={!input.trim() || streaming}
                 aria-label="Send"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink disabled:opacity-50"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink disabled:opacity-50 app:h-12 app:w-12"
                 style={{ background: "var(--grad)" }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -217,6 +279,6 @@ export function Panel({ edge, orb, onClose }: { edge: "left" | "right" | "bottom
           </div>
         </div>
       </Phone>
-    </div>
+    </motion.div>
   );
 }

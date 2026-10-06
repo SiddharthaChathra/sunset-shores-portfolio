@@ -10,13 +10,22 @@ import { Phone } from "../phone/Phone";
 import { ScrollLinked } from "../phone/ScrollLinked";
 import { EmblemArt } from "../EmblemArt";
 import { BillboardsFallback } from "./BillboardsFallback";
+import dynamic from "next/dynamic";
+import { useDeviceMode } from "@/lib/device";
 
-const accent = (p: Project) =>
+export const accent = (p: Project) =>
   p.accentFromTheme === "teal" ? theme.color.teal : p.accentFromTheme === "coral" ? theme.color.coral : theme.color.accent;
-const tag = (s: string) => "#" + s.replace(/[^a-z0-9]+/gi, "");
+export const tag = (s: string) => "#" + s.replace(/[^a-z0-9]+/gi, "");
 
-function PostImage({ p }: { p: Project }) {
+export function PostImage({ p, thumb = false }: { p: Project; thumb?: boolean }) {
   const [ok, setOk] = useState(true);
+  if (thumb)
+    return p.coverImage && ok ? (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={p.coverImage} alt="" className="h-full w-full object-cover object-top" loading="lazy" onError={() => setOk(false)} />
+    ) : (
+      <EmblemArt emblem={p.emblem} color={accent(p)} title={p.title} />
+    );
   return (
     <figure className="relative aspect-[16/10] w-full overflow-hidden bg-[linear-gradient(160deg,#fff,#ffe0ec)]">
       {p.coverImage && ok ? (
@@ -33,7 +42,7 @@ function PostImage({ p }: { p: Project }) {
 }
 
 /** Small labelled block inside the case study. */
-function Block({ label, children, color }: { label: string; children: React.ReactNode; color: string }) {
+export function Block({ label, children, color }: { label: string; children: React.ReactNode; color: string }) {
   return (
     <section className="mx-4 mt-3 rounded-[16px] bg-white/80 p-3.5 shadow-[0_1px_0_rgb(35_32_58/0.06)]">
       <h4 className="flex items-center gap-2 font-mono text-[10.5px] font-bold tracking-[0.16em] text-accent-strong uppercase">
@@ -45,7 +54,7 @@ function Block({ label, children, color }: { label: string; children: React.Reac
   );
 }
 
-function Bullets({ items, color }: { items: string[]; color: string }) {
+export function Bullets({ items, color }: { items: string[]; color: string }) {
   return (
     <ul className="space-y-1.5">
       {items.map((h) => (
@@ -79,12 +88,12 @@ function ProjectPost({ p }: { p: Project }) {
       <PostImage p={p} />
       <div className="flex gap-2 px-4 pt-3">
         {p.links.repo && (
-          <a className="btn btn-primary btn-sm flex-1" href={p.links.repo} target="_blank" rel="noopener noreferrer">
+          <a className="btn btn-primary btn-sm flex-1 touch:!h-11" href={p.links.repo} target="_blank" rel="noopener noreferrer">
             GitHub<span className="sr-only"> repository for {p.title} (opens in new tab)</span>
           </a>
         )}
         {p.links.live && (
-          <a className="btn btn-ghost btn-sm flex-1" href={p.links.live} target="_blank" rel="noopener noreferrer">
+          <a className="btn btn-ghost btn-sm flex-1 touch:!h-11" href={p.links.live} target="_blank" rel="noopener noreferrer">
             <span className="relative flex h-2 w-2" aria-hidden>
               <span className="pulse-ring absolute inset-0 rounded-full bg-teal" />
               <span className="relative h-2 w-2 rounded-full bg-teal-ink" />
@@ -121,10 +130,15 @@ function ProjectPost({ p }: { p: Project }) {
 /** Per-project progress (0..1) inside the pinned section, for scroll-linking that project's phone screen. */
 const projectProgress = projects.map((_, i) => (p: number) => Math.min(1, Math.max(0, p * projects.length - i)));
 
+// phones/tablets: pinned billboard layout + compact post (loaded only there)
+const ProjectsMobile = dynamic(() => import("./ProjectsMobile").then((m) => m.ProjectsMobile), { ssr: false });
+
 export function Projects() {
   const active = useApp((s) => s.project);
   const tier = useApp((s) => s.tier);
+  const mode = useDeviceMode();
   const p = projects[active];
+  if (mode !== "frame") return <ProjectsMobile />;
 
   return (
     <section
@@ -166,7 +180,7 @@ export function Projects() {
                     scrollToProject(n);
                     document.getElementById(`project-tab-${n}`)?.focus();
                   }}
-                  className={`flex items-center gap-3 rounded-full px-3 py-1.5 text-left transition-colors ${i === active ? "bg-ink text-white" : "text-ink hover:bg-white"}`}
+                  className={`flex items-center gap-3 rounded-full px-3 py-1.5 text-left transition-colors touch:min-h-11 ${i === active ? "bg-ink text-white" : "text-ink hover:bg-white"}`}
                 >
                   <span className={`font-mono text-[12px] font-bold ${i === active ? "text-[#FF9F43]" : "text-accent-strong"}`}>{proj.index}</span>
                   <span className="text-[14.5px] font-extrabold">{proj.title}</span>
@@ -177,7 +191,7 @@ export function Projects() {
 
           <div className="flex items-center justify-center md:justify-end lg:justify-center">
             {/* Phones get a compact heading above the app (the billboards ride in the 3D band above). */}
-            <div className="w-full min-[700px]:w-auto">
+            <div className="w-full frame:w-auto">
               <h2 className="display grad-text skew mb-3 text-[40px] md:hidden" aria-hidden>
                 Projects
               </h2>

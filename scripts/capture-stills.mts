@@ -34,6 +34,28 @@ for (const id of SECTIONS) {
   console.log("still", id);
 }
 
+// 1b. Phone and tablet postcards: exactly what the scene window shows on those devices
+//     (phone: 393×852 → window 42svh, 1080 px wide; tablet portrait: 820×1180 → window 50svh, ~2048 px wide).
+for (const [suffix, w, h, dpr, frac] of [
+  ["phone", 393, 852, 2.75, 0.42],
+  ["tab", 820, 1180, 2.5, 0.5],
+] as const) {
+  const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: dpr, hasTouch: true, isMobile: true });
+  const p = await ctx.newPage();
+  await p.goto(`${BASE}/?tier=high&capture=1&fixeddpr`);
+  await p.waitForFunction("window.__sceneReady", null, { timeout: 90000 });
+  await p.waitForTimeout(2500);
+  for (const id of SECTIONS) {
+    await p.evaluate(`(() => { const el = document.getElementById(${JSON.stringify(id)}); window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY); })()`);
+    await p.waitForTimeout(id === "projects" ? 2600 : 1800);
+    const png = await p.screenshot({ type: "png", clip: { x: 0, y: 0, width: w, height: Math.round(h * frac) } });
+    await sharp(png).webp({ quality: 76 }).toFile(`public/stills/${id}-${suffix}.webp`);
+    if (suffix === "phone") await sharp(png).resize(720).webp({ quality: 62 }).toFile(`public/stills/${id}-phone-sm.webp`);
+  }
+  console.log("stills", suffix);
+  await ctx.close();
+}
+
 // 2. Open Graph image: the live Hero with its HTML title.
 const og = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 await og.goto(`${BASE}/?tier=high`);

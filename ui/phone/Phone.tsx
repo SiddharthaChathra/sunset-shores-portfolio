@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { deviceMode } from "@/lib/device";
 import { AnimatePresence, motion } from "motion/react";
 import { rig } from "@/lib/rig";
 
@@ -71,7 +72,8 @@ function StatusBar() {
 
 /**
  * Sunset OS: the in-world smartphone every app lives in. On desktop it floats beside the scene with a
- * ±4° cursor tilt and moving glass reflection; under 700px it becomes full-width native UI (no frame).
+ * ±4° cursor tilt and moving glass reflection; on phones, tablets in portrait and short landscape screens it
+ * becomes full-width native UI (no frame).
  */
 export function Phone({
   app,
@@ -104,7 +106,7 @@ export function Phone({
   wide?: boolean;
   /** Cursor tilt (off for input-heavy apps like the assistant). */
   tilt?: boolean;
-  /** Fixed height on phones (< 700px) with touch scrolling inside, e.g. "calc(64svh - 90px)". */
+  /** Fixed height on the frameless layouts, with touch scrolling inside, e.g. "calc(64svh - 90px)". */
   mobileHeight?: string;
   testId?: string;
   /** Replaces the app icon in the header (e.g. the assistant's orb). */
@@ -129,7 +131,7 @@ export function Phone({
     el.addEventListener("pointerenter", enter);
     el.addEventListener("pointerleave", leave);
     const loop = () => {
-      const narrow = window.innerWidth < 700;
+      const narrow = deviceMode() !== "frame";
       const src = rig.tilt.active ? rig.tilt : rig.pointer;
       const flat = narrow || inside;
       const tx = flat ? 0 : src.x;
@@ -160,7 +162,7 @@ export function Phone({
     <div
       ref={shell}
       data-testid={testId}
-      className={`phone relative w-full ${mobileHeight ? "max-[699px]:![height:var(--phone-mobile-h)]" : "max-[699px]:!h-auto"} ${wide ? "min-[700px]:w-[min(1000px,92vw)]" : "min-[700px]:w-[392px]"} min-[700px]:rounded-[48px] min-[700px]:p-[11px] min-[700px]:shadow-[0_40px_90px_rgb(255_79_139/0.28),0_12px_30px_rgb(35_32_58/0.22)] ${className}`}
+      className={`phone relative w-full ${mobileHeight ? "app:![height:var(--phone-mobile-h)]" : "app:!h-auto"} ${wide ? "frame:w-[min(1000px,92vw)]" : "frame:w-[392px]"} frame:rounded-[48px] frame:p-[11px] frame:shadow-[0_40px_90px_rgb(255_79_139/0.28),0_12px_30px_rgb(35_32_58/0.22)] app:mx-auto app:max-w-[640px] app:rounded-[var(--r-phone)] app:shadow-[0_18px_44px_rgb(255_79_139/0.14),0_4px_14px_rgb(35_32_58/0.08)] ${className}`}
       style={{
         height,
         ...(mobileHeight ? ({ "--phone-mobile-h": mobileHeight } as React.CSSProperties) : {}),
@@ -170,13 +172,13 @@ export function Phone({
       }}
     >
       {/* side buttons */}
-      <span aria-hidden className="absolute top-[120px] -left-[3px] hidden h-14 w-[4px] rounded-l bg-[#f3c6d6] min-[700px]:block" />
-      <span aria-hidden className="absolute top-[150px] -right-[3px] hidden h-20 w-[4px] rounded-r bg-[#f3c6d6] min-[700px]:block" />
-      <div className="relative flex h-full flex-col overflow-hidden bg-paper max-[699px]:rounded-[var(--r-phone)] min-[700px]:rounded-[38px]">
-        <div className="relative hidden min-[700px]:block">
+      <span aria-hidden className="absolute top-[120px] -left-[3px] hidden h-14 w-[4px] rounded-l bg-[#f3c6d6] frame:block" />
+      <span aria-hidden className="absolute top-[150px] -right-[3px] hidden h-20 w-[4px] rounded-r bg-[#f3c6d6] frame:block" />
+      <div className="relative flex h-full flex-col overflow-hidden bg-paper app:rounded-[var(--r-phone)] frame:rounded-[38px]">
+        <div className="relative hidden frame:block">
           <span aria-hidden className="absolute top-2 left-1/2 h-[22px] w-[96px] -translate-x-1/2 rounded-full bg-ink" />
         </div>
-        <div className="hidden pt-1 min-[700px]:block">
+        <div className="hidden pt-1 frame:block">
           <StatusBar />
         </div>
         <header className="flex shrink-0 items-center gap-3 border-b border-ink/8 px-5 pt-3 pb-3">
@@ -187,7 +189,7 @@ export function Phone({
           </div>
           {action}
         </header>
-        <div data-phone-screen className={`relative min-h-0 flex-1 ${scroll ? "overflow-y-auto" : mobileHeight ? "overflow-hidden max-[699px]:overflow-y-auto" : "overflow-hidden"}`} data-lenis-prevent={scroll ? "" : undefined}>
+        <div data-phone-screen className={`relative min-h-0 flex-1 ${scroll ? "overflow-y-auto" : mobileHeight ? "overflow-hidden app:overflow-y-auto" : "overflow-hidden"}`} data-lenis-prevent={scroll ? "" : undefined}>
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={screenKey ?? "screen"}
@@ -201,11 +203,11 @@ export function Phone({
             </motion.div>
           </AnimatePresence>
         </div>
-        <div aria-hidden className="hidden h-5 shrink-0 items-center justify-center min-[700px]:flex">
+        <div aria-hidden className="hidden h-5 shrink-0 items-center justify-center frame:flex">
           <span className="h-[5px] w-[120px] rounded-full bg-ink/80" />
         </div>
         {/* glass reflection */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 hidden overflow-hidden min-[700px]:block">
+        <div aria-hidden className="pointer-events-none absolute inset-0 hidden overflow-hidden frame:block">
           <div
             ref={glare}
             className="absolute -inset-1/2 bg-[linear-gradient(115deg,transparent_40%,rgb(255_255_255/0.35)_48%,transparent_56%)]"

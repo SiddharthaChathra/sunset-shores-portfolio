@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, type ReactNode } from "react";
+import { deviceMode } from "@/lib/device";
 import { useSectionFrame } from "@/lib/useSectionProgress";
 
 /**
@@ -29,7 +30,7 @@ export function ScrollLinked({
       const el = inner.current;
       const box = el?.closest<HTMLElement>("[data-phone-screen]");
       if (!el || !box) return;
-      if (window.innerWidth < 700) {
+      if (deviceMode() !== "frame") {
         el.style.transform = "";
         return;
       }

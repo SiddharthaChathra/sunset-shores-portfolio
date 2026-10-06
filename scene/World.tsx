@@ -37,6 +37,8 @@ function Clock() {
  */
 export function World({ tier, settings, onStaged }: { tier: Exclude<Tier, "low">; settings: TierSettings; onStaged: () => void }) {
   const high = tier === "high";
+  // phones: lighter life (particles ≤ 600, birds ≤ 12, fewer cars)
+  const phone = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches && Math.min(screen.width, screen.height) < 744;
   const parts: ReactNode[] = [
     <>
       <Clock />
@@ -55,9 +57,9 @@ export function World({ tier, settings, onStaged }: { tier: Exclude<Tier, "low">
     off("road") ? null : <Road key="road" />,
     <Street key="street" density={high ? 1 : 0.75} />,
     <>
-      {!off("traffic") && <Traffic count={high ? 7 : 5} />}
-      <Birds count={high ? 30 : 16} />
-      <Spray count={settings.particles} />
+      {!off("traffic") && <Traffic count={phone ? 3 : high ? 7 : 5} />}
+      <Birds count={phone ? 12 : high ? 30 : 16} />
+      <Spray count={phone ? Math.min(600, settings.particles) : settings.particles} />
     </>,
     <HeroScene key="hero" />,
     <AboutScene key="about" />,

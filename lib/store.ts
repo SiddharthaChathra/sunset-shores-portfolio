@@ -70,9 +70,21 @@ interface AppState {
 
   assistantOpen: boolean;
   setAssistantOpen: (v: boolean) => void;
+
+  /** Mobile bottom sheets (map, "More", project details). */
+  sheet: "map" | "more" | "project" | null;
+  setSheet: (s: "map" | "more" | "project" | null) => void;
+
+  /** Certificate centred in the mobile carousel (the garage spotlight follows it). */
+  certFocus: string | null;
+  setCertFocus: (id: string | null) => void;
 }
 
 export const useApp = create<AppState>((set, get) => ({
+  sheet: null,
+  setSheet: (sheet) => set({ sheet }),
+  certFocus: null,
+  setCertFocus: (certFocus) => set({ certFocus }),
   tier: null,
   tierReason: "",
   setTier: (tier, reason) => set({ tier, tierReason: reason }),

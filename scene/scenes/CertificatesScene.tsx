@@ -42,8 +42,13 @@ function PlaqueFace({ texture }: { texture: string }) {
 function Plaque({ c, pos, shown, list, near }: { c: CertificateEntry; pos: THREE.Vector3; shown: boolean; list: CertificateEntry[]; near: boolean }) {
   const g = useRef<THREE.Group>(null);
   const glint = useRef<THREE.Mesh>(null);
-  const [hover, setHover] = useState(false);
+  const [hoverState, setHover] = useState(false);
+  const focused = useApp((s) => s.certFocus === c.id);
+  const hover = hoverState || focused;
   const openLightbox = useApp((s) => s.openLightbox);
+  useEffect(() => {
+    if (focused) spot.target.set(pos.x, pos.y, pos.z); // the mobile carousel's centred plaque
+  }, [focused, pos]);
   useFrame((_, dt) => {
     if (!g.current) return;
     const k = THREE.MathUtils.damp(g.current.userData.k ?? 1, shown ? 1 : 0.35, 5, dt);

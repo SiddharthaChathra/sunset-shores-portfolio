@@ -136,11 +136,57 @@ Everything 3D is **procedural**: no downloaded models, textures or HDRIs, and th
 
 ## 📱 On your phone
 
+On a phone **the site is the phone**. The 3D coast sits in a cinematic scene window at the top, and Sunset OS apps fill the screen below it, with a dock for navigation.
+
 <div align="center">
-  <img src="docs/readme/mobile.webp" alt="Four mobile screens: hero, profile, projects and contacts" width="92%">
+  <img src="docs/readme/mobile.webp" alt="Four phone screens: Ocean Drive with the neon sign, the Projects app under the billboards, the certificate carousel in the trophy garage, and the Contacts card at the pier" width="92%">
 </div>
 
-The 3D world rides in a band at the top; the phone apps become full-width native screens. Phones without a capable GPU get pre-rendered postcards of every scene instead of the live canvas.
+<table>
+  <tr>
+    <td width="33%" valign="top">
+      <h4>🧭 Native navigation</h4>
+      A Sunset OS dock (Home, Projects, Work, Certs, Contact, More) that hides while you scroll down. Tap the minimap for a full-screen map and tap any stop to drive there.
+    </td>
+    <td width="33%" valign="top">
+      <h4>🪧 Swipeable billboards</h4>
+      Projects slide sideways in the scene window while the app below swaps screens. Swipe the scene or scroll the page; they stay in sync. "Read more" opens the full case study in a bottom sheet.
+    </td>
+    <td width="33%" valign="top">
+      <h4>🏆 Touch-first details</h4>
+      A snap carousel of certificate plaques (the garage spotlight follows the one in the centre), a Photos viewer with swipe, pinch and double-tap zoom and swipe-down to close, and skills that expand inline.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h4>💬 Assistant as a bottom sheet</h4>
+      Drag the orb to either edge and it stays there. The chat opens as a keyboard-aware sheet; swipe down or use Back to close it. Hold the mic to talk.
+    </td>
+    <td valign="top">
+      <h4>🎮 Tuned for phones</h4>
+      A smaller scene window, capped resolution and lighter effects hold about 60 fps on the medium tier even with the CPU slowed 4×. Low-end phones, Save-Data and reduced-motion get postcards framed for the scene window.
+    </td>
+    <td valign="top">
+      <h4>👆 Built for thumbs</h4>
+      Every tap target is at least 44px, body text is at least 16px, safe areas (notch, home indicator) are respected, and nothing depends on hover.
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/readme/tablet.webp" alt="Tablet portrait: a wide scene band above the Hero and the two-column Stats app">
+      <p align="center"><b>Tablet portrait</b>: a wide scene band, two-column apps</p>
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/readme/landscape.webp" alt="Phone landscape: the full-bleed scene with the billboard on the left and the Sunset OS sheet on the right">
+      <p align="center"><b>Phone landscape</b>: a full-bleed scene with an app sheet</p>
+    </td>
+  </tr>
+</table>
+
+Tested on iPhone SE, iPhone 15, iPhone 15 Pro Max, Pixel 7, Galaxy Fold, iPad Mini, iPad Air and iPad Pro (portrait and landscape) with real touch input in Playwright: swipes, drags, pinch and rotation. Details are in [RESPONSIVE_PROGRESS.md](RESPONSIVE_PROGRESS.md).
 
 ---
 
@@ -244,7 +290,8 @@ A live guard lowers render resolution in small steps when the frame rate drops a
 |---|---|
 | `npm run content` | Asset pipeline (`scripts/build-content.mts`) |
 | `npm run lint` · `npm run typecheck` · `npm run build` | Static checks and production build |
-| `npm run test:e2e` | Playwright on the production build: every stop on desktop, tablet and phone, FPS, shader compilation, projects sync, assistant, lightbox, low tier, axe |
+| `npm run test:e2e` | Playwright on the production build: every stop on desktop, FPS, shader compilation, projects sync, assistant, lightbox, low tier, axe, plus `tests/mobile.spec.ts` (10 phones/tablets with real touch: layout, swipe sync, dock and map, assistant sheet, Photos gestures) |
+| `npx tsx scripts/device-audit.mts <dir>` | Screenshots every section on the phone/tablet matrix and checks overflow, tap targets and text size |
 | `npm run lighthouse` | Lighthouse (add `--mobile` for the mobile preset) |
 | `npm run check:secrets` | Asserts no secret appears in the client bundle |
 | `npm run capture:stills` | Regenerates the postcard stills, loading-screen art and the Open Graph image |

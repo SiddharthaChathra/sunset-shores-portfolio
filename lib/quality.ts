@@ -24,7 +24,9 @@ export function tierDpr(tier: Exclude<Tier, "low">): [number, number] {
   if (typeof window === "undefined") return [lo, hi];
   const budget = tier === "high" ? 3.3e6 : 2.1e6;
   const fit = Math.sqrt(budget / (window.innerWidth * window.innerHeight));
-  const max = Math.max(1, Math.min(hi, window.devicePixelRatio || 1, fit));
+  // phones and tablets: DPR never above 1.5 (battery and heat)
+  const touchCap = window.matchMedia("(pointer: coarse)").matches ? 1.5 : Infinity;
+  const max = Math.max(1, Math.min(hi, window.devicePixelRatio || 1, fit, touchCap));
   return [Math.min(lo, max), max];
 }
 
@@ -77,6 +79,11 @@ export async function detectTier(): Promise<{ tier: Tier; reason: string }> {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     return { tier: "low", reason: "prefers-reduced-motion" };
   }
+  // Low-end mobile hints: Save-Data, or a touch device with ≤ 4 GB of memory → the postcard stills.
+  const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
+  const touch = window.matchMedia("(pointer: coarse)").matches;
+  if (nav.connection?.saveData) return { tier: "low", reason: "Save-Data is on" };
+  if (touch && typeof nav.deviceMemory === "number" && nav.deviceMemory <= 4) return { tier: "low", reason: `low-memory device (${nav.deviceMemory} GB)` };
   const renderer = await webglRenderer();
   if (renderer === null) return { tier: "low", reason: "WebGL unavailable" };
   // Software rasterisers (no GPU) can't run the live world smoothly: show the stills instead.
@@ -97,6 +104,9 @@ export async function detectTier(): Promise<{ tier: Tier; reason: string }> {
     // Integrated Intel GPUs benchmark as tier 3 but stall under the full post stack at 1080p+ (measured on Iris Xe):
     // start them at medium. The FPS guard still steps any tier down at runtime.
     const integrated = /intel|uhd graphics|iris/i.test(gpu.gpu ?? "");
+    // Tablets (large touch screens) with a strong GPU run the high tier (DPR capped at 1.5); phones top out at medium.
+    const tablet = touch && Math.min(screen.width, screen.height) >= 744;
+    if (gpu.tier >= 3 && mobile && tablet) return { tier: "high", reason: `tablet, gpu tier 3 (${gpu.gpu})` };
     if (gpu.tier >= 3 && !mobile && !integrated) return { tier: "high", reason: `gpu tier 3 (${gpu.gpu})` };
     if (gpu.tier >= 2) return { tier: "medium", reason: `gpu tier ${gpu.tier} (${gpu.gpu})` };
     return { tier: "low", reason: `gpu tier ${gpu.tier} (${gpu.gpu})` };

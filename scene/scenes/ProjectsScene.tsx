@@ -10,6 +10,7 @@ import { theme } from "@/theme/theme";
 import { projects, type Project } from "@/content/projects";
 import { rig } from "@/lib/rig";
 import { useApp } from "@/lib/store";
+import { useDeviceMode } from "@/lib/device";
 import { scrollToProject } from "@/lib/scroll";
 import { sfx } from "@/lib/audio";
 import { SceneRoot } from "../SceneRoot";
@@ -37,7 +38,7 @@ const FRAME = (() => {
   };
 })();
 
-function Billboard({ p, k, total }: { p: Project; k: number; total: number }) {
+function Billboard({ p, k, total, sideways }: { p: Project; k: number; total: number; sideways: boolean }) {
   const group = useRef<THREE.Group>(null);
   const swinger = useRef<THREE.Group>(null);
   const titleRef = useRef<{ fillOpacity: number } | null>(null);
@@ -68,7 +69,14 @@ function Billboard({ p, k, total }: { p: Project; k: number; total: number }) {
       z = 0,
       dis = 0,
       op = 1;
-    if (s >= 0) {
+    if (sideways) {
+      // phones/tablets: the active board centred in the scene window, the next waiting off to the
+      // right, the previous sliding out to the left and dissolving. Only the billboards move.
+      x = s * BW * 1.35;
+      z = -Math.abs(s) * 0.8;
+      if (s < 0) dis = THREE.MathUtils.clamp(-s * 1.4, 0, 1);
+      op = Math.abs(s) > 1.6 ? 0 : 1;
+    } else if (s >= 0) {
       // waiting further down the highway
       x = s * 1.6;
       y = s * 0.4;
@@ -113,6 +121,26 @@ function Billboard({ p, k, total }: { p: Project; k: number; total: number }) {
   const onDown = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
     if (!group.current?.userData.active) return;
+    if (e.pointerType === "touch") {
+      // touch: long-press swings the board (a drag would fight the page scroll)
+      const x0 = e.clientX;
+      const y0 = e.clientY;
+      const timer = setTimeout(() => {
+        swing.vel = 7;
+        navigator.vibrate?.(10);
+      }, 420);
+      const cancel = (ev: PointerEvent) => {
+        if (ev.type === "pointermove" && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 10) return;
+        clearTimeout(timer);
+        window.removeEventListener("pointermove", cancel);
+        window.removeEventListener("pointerup", cancel);
+        window.removeEventListener("pointercancel", cancel);
+      };
+      window.addEventListener("pointermove", cancel);
+      window.addEventListener("pointerup", cancel);
+      window.addEventListener("pointercancel", cancel);
+      return;
+    }
     swing.dragging = true;
     swing.lastX = e.clientX;
     swing.lastT = performance.now();
@@ -211,13 +239,15 @@ function Billboard({ p, k, total }: { p: Project; k: number; total: number }) {
 export function ProjectsScene() {
   const L = useStopLayout(2);
   const active = useApp((s) => s.project);
-  const boards = useMemo(() => L.at(L.narrow ? 0 : -0.5, L.narrow ? 2.4 : 0.6, 1.5), [L]);
+  const mode = useDeviceMode();
+  const sideways = mode === "phone" || mode === "tabp";
+  const boards = useMemo(() => (sideways ? L.at(0, 1.2, 6) : L.at(L.narrow ? 0 : -0.5, L.narrow ? 2.4 : 0.6, 1.5)), [L, sideways]);
   const emblem = useMemo(() => L.at(L.narrow ? 0.2 : -0.08, 3.2, -22), [L]);
   return (
     <SceneRoot index={2}>
-      <group position={boards} rotation-y={L.yaw + TILT}>
+      <group position={boards} rotation-y={L.yaw + (sideways ? 0 : TILT)}>
         {projects.map((p, k) => (
-          <Billboard key={p.id} p={p} k={k} total={projects.length} />
+          <Billboard key={p.id} p={p} k={k} total={projects.length} sideways={sideways} />
         ))}
       </group>
       <group position={emblem} rotation-y={L.yaw}>

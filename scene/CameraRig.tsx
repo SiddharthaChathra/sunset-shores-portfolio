@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { rig } from "@/lib/rig";
+import { useDeviceMode } from "@/lib/device";
 import { CURVES, curveT, roadX, roadY, STOPS } from "./layout";
 
 const pos = new THREE.Vector3();
@@ -21,6 +22,8 @@ export const camState = { world: 0, heroWeight: 1, px: 0, py: 0 };
  */
 export function CameraRig() {
   const damped = useRef(0);
+  const mode = useDeviceMode();
+  const stacked = mode === "phone" || mode === "tabp";
   useFrame((state, dt) => {
     const d = Math.min(dt, 1 / 20);
     const target = rig.world;
@@ -38,7 +41,8 @@ export function CameraRig() {
     if (Math.abs(pos.x - roadX(pos.z)) < 9) pos.y = Math.max(pos.y, roadY(pos.z) + 2.6);
 
     // Billboard highway: the camera dollies forward along the flyover through the four projects.
-    const pw = 1 - THREE.MathUtils.smoothstep(Math.abs(w - 2), 0.15, 0.6);
+    // (phones/tablets in portrait keep the camera still: the billboards slide sideways instead)
+    const pw = stacked ? 0 : 1 - THREE.MathUtils.smoothstep(Math.abs(w - 2), 0.15, 0.6);
     if (pw > 0) {
       off.copy(look).sub(pos).setY(0).normalize();
       const dolly = (rig.project - 2) * 2.2 * pw;

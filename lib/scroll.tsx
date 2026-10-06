@@ -104,7 +104,7 @@ export function ScrollDriver() {
       // Projects pin progress.
       const pi = SECTION_ORDER.indexOf("projects");
       const ps = rig.sections[pi];
-      if (ps) {
+      if (ps && !rig.projectLocked) {
         const span = Math.max(1, ps.height - vh);
         const local = Math.min(1, Math.max(0, (y - ps.top) / span));
         rig.project = local * projects.length;

@@ -6,6 +6,9 @@ import { useApp } from "@/lib/store";
 import { getLenis } from "@/lib/scroll";
 import { useFocusTrap } from "@/lib/useFocusTrap";
 import { Phone } from "./phone/Phone";
+import { PhotoGestures } from "./PhotoGestures";
+import { useDeviceMode } from "@/lib/device";
+import { useBackToClose } from "@/lib/useBackToClose";
 
 /** Photos app: certificate / document viewer. Swipe, tap-to-zoom, download, Esc, ←/→, focus trap. */
 export function Lightbox() {
@@ -19,6 +22,10 @@ export function Lightbox() {
   const [zoom, setZoom] = useState<{ on: boolean; x: number; y: number }>({ on: false, x: 50, y: 50 });
   const open = !!lb;
   const c = lb ? lb.list[lb.index] : null;
+  const mode = useDeviceMode();
+  const touchUi = mode !== "frame";
+  // Android Back closes the viewer
+  useBackToClose(open, close);
 
   useEffect(() => {
     if (open) {
@@ -50,7 +57,7 @@ export function Lightbox() {
       {lb && c && (
         <motion.div
           key="photos"
-          className="fixed inset-0 z-[85] flex items-center justify-center p-3 sm:p-8"
+          className="fixed inset-0 z-[85] flex items-center justify-center p-3 sm:p-8 phone:!p-0 land:!p-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -63,7 +70,7 @@ export function Lightbox() {
             aria-modal="true"
             aria-labelledby="lb-title"
             data-testid="lightbox"
-            className="relative"
+            className="relative phone:h-full phone:w-full land:h-full land:w-full"
             initial={{ y: 30, scale: 0.94, rotate: -2 }}
             animate={{ y: 0, scale: 1, rotate: 0 }}
             exit={{ y: 16, scale: 0.97 }}
@@ -75,9 +82,11 @@ export function Lightbox() {
               title="Photos"
               subtitle={lb.list.length > 1 ? `${lb.index + 1} of ${lb.list.length}` : c.issuer}
               screenKey={c.id}
-              height="min(700px, 92svh)"
+              height={mode === "phone" || mode === "land" ? "100svh" : mode === "tabp" ? "min(900px, 86svh)" : "min(700px, 92svh)"}
+              className={mode === "phone" || mode === "land" ? "!h-full !max-w-none !rounded-none pt-[var(--safe-t)]" : mode === "tabp" ? "!max-w-[720px]" : ""}
+              tilt={!touchUi}
               action={
-                <button type="button" className="pill !h-9" onClick={close} aria-label="Close Photos">
+                <button type="button" className="pill !h-9 app:!h-11 app:!px-4" onClick={close} aria-label="Close Photos">
                   Done
                 </button>
               }
@@ -85,7 +94,7 @@ export function Lightbox() {
               <div className="flex h-full flex-col">
                 <div
                   className="relative flex min-h-[220px] flex-1 touch-pan-y items-center justify-center overflow-hidden bg-[#f6efe9]"
-                  onPointerDown={(e) => (swipe.current = { x: e.clientX, t: performance.now() })}
+                  onPointerDown={(e) => (swipe.current = touchUi ? null : { x: e.clientX, t: performance.now() })}
                   onPointerUp={(e) => {
                     const s = swipe.current;
                     swipe.current = null;
@@ -97,7 +106,9 @@ export function Lightbox() {
                     }
                   }}
                 >
-                  {c.preview ? (
+                  {c.preview && touchUi ? (
+                    <PhotoGestures key={c.id} src={c.preview} alt={`${c.title}, issued by ${c.issuer}`} onStep={step} onClose={close} />
+                  ) : c.preview ? (
                     <button
                       type="button"
                       className={`h-full w-full ${zoom.on ? "cursor-zoom-out" : "cursor-zoom-in"}`}
@@ -125,7 +136,7 @@ export function Lightbox() {
                   ) : (
                     <p className="p-10 text-center text-ink-soft">Preview not available.</p>
                   )}
-                  {lb.list.length > 1 && (
+                  {lb.list.length > 1 && !touchUi && (
                     <>
                       <button type="button" className="pill absolute top-1/2 left-3 -translate-y-1/2 !h-10 !w-10 !justify-center !px-0 text-[18px]" onClick={() => (resetZoom(), step(-1))} aria-label="Previous photo">
                         ‹
@@ -136,6 +147,9 @@ export function Lightbox() {
                     </>
                   )}
                 </div>
+                {touchUi && lb.list.length > 1 && (
+                  <p className="border-t border-ink/8 py-1.5 text-center font-mono text-[12px] text-ink-soft">Swipe · pinch or double-tap to zoom · swipe down to close</p>
+                )}
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink/8 px-5 py-3">
                   <div className="min-w-0">
                     {lb.achievement && <p className="font-mono text-[11px] font-bold tracking-[0.18em] text-accent-strong uppercase">Trophy unlocked</p>}
@@ -148,10 +162,11 @@ export function Lightbox() {
                   </div>
                   {c.file && (
                     <div className="flex gap-2">
-                      <a className="btn btn-ghost btn-sm" href={c.file} target="_blank" rel="noopener noreferrer">
-                        Open original<span className="sr-only"> (opens in new tab)</span>
+                      <a className="btn btn-ghost btn-sm app:!h-11" href={c.file} target="_blank" rel="noopener noreferrer">
+                        {touchUi && c.kind === "pdf" ? "Open PDF" : "Open original"}
+                        <span className="sr-only"> (opens in new tab)</span>
                       </a>
-                      <a className="btn btn-primary btn-sm" href={c.file} download>
+                      <a className="btn btn-primary btn-sm app:!h-11" href={c.file} download>
                         Download
                       </a>
                     </div>
@@ -169,7 +184,7 @@ export function Lightbox() {
                         }}
                         aria-label={`Show ${x.title}`}
                         aria-current={i === lb.index ? "true" : undefined}
-                        className={`h-12 w-16 shrink-0 overflow-hidden rounded-[8px] transition ${i === lb.index ? "ring-2 ring-accent" : "opacity-70 hover:opacity-100"}`}
+                        className={`h-12 w-16 shrink-0 overflow-hidden rounded-[8px] transition app:h-14 app:w-[72px] ${i === lb.index ? "ring-2 ring-accent" : "opacity-70 hover:opacity-100"}`}
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         {x.thumb && <img src={x.thumb} alt="" className="h-full w-full object-cover" />}
