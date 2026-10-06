@@ -1,0 +1,73 @@
+{
+  "$comment": "Keyed by file stem in assets/certificates or assets/internships. Every entry here is also a seed: if its file is missing the site shows it as a locked badge. Dates were read from the certificate PDFs.",
+  "aws-cloud-practitioner-essentials": {
+    "title": "AWS Cloud Practitioner Essentials",
+    "issuer": "AWS Training & Certification",
+    "date": "2026-08-02",
+    "category": "Cloud",
+    "type": "certificate"
+  },
+  "ainnovation-2025-microsoft-azure-learning-challenge": {
+    "title": "AINNOVATION 2025: Microsoft Azure Learning Challenge",
+    "issuer": "Microsoft · AINNOVATION 2025",
+    "date": "2025-09-18",
+    "category": "Cloud",
+    "type": "certificate"
+  },
+  "ainnovation-2025-applied-ai-learning-challenge": {
+    "title": "AINNOVATION 2025: Applied AI Learning Challenge",
+    "issuer": "Microsoft · AINNOVATION 2025",
+    "date": "2025-09-19",
+    "category": "AI",
+    "type": "certificate"
+  },
+  "ainnovation-2025-microsoft-ai-learning-challenge": {
+    "title": "AINNOVATION 2025: Microsoft AI Learning Challenge",
+    "issuer": "Microsoft · AINNOVATION 2025",
+    "date": "2025-09-18",
+    "category": "AI",
+    "type": "certificate"
+  },
+  "data-analysis-using-ai": {
+    "title": "Data Analysis Certificate: Data Analysis Using AI",
+    "issuer": "Skill Nation (live workshop)",
+    "date": "2024-06-23",
+    "category": "Data",
+    "type": "certificate"
+  },
+  "data-analytics-masterclass": {
+    "title": "30-Day MasterClass in Data Analytics",
+    "issuer": "NoviTech R&D Pvt Ltd",
+    "date": "2025-07-29",
+    "category": "Data",
+    "type": "certificate"
+  },
+  "cisco-networking-basics": {
+    "title": "Networking Basics",
+    "issuer": "Cisco Networking Academy",
+    "date": "2026-08-24",
+    "category": "Networking",
+    "type": "certificate"
+  },
+  "cisco-networking-devices-and-basic-configuration": {
+    "title": "Networking Devices and Basic Configuration",
+    "issuer": "Cisco Networking Academy",
+    "date": "2026-08-31",
+    "category": "Networking",
+    "type": "certificate"
+  },
+  "ai-intern-novitech": {
+    "title": "AI Internship: Certificate of Completion",
+    "issuer": "NoviTech R&D Pvt Ltd",
+    "date": "2025-03-03",
+    "category": "AI",
+    "type": "internship"
+  },
+  "data-analyst-intern-novitech": {
+    "title": "Data Analytics Internship: Certificate of Completion",
+    "issuer": "NoviTech R&D Pvt Ltd",
+    "date": "2025-07-25",
+    "category": "Data",
+    "type": "internship"
+  }
+}
