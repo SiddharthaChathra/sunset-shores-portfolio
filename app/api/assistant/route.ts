@@ -142,7 +142,10 @@ export async function POST(req: Request) {
       return fail(`groq-${err.status ?? "error"}`, 502);
     }
     console.error("[assistant] error", err);
-    return fail("server", 500);
+    // error type + a short, key-redacted message so a failing deployment can be diagnosed from the browser
+    const e = err as Error;
+    const hint = `${e?.name ?? "Error"}: ${String(e?.message ?? err).replace(/gsk_\w+/g, "gsk_***").slice(0, 120)}`;
+    return fail(`server; ${hint}`.replace(/[^ -~]/g, "?"), 500);
   }
 
   const stream = new ReadableStream<Uint8Array>({
