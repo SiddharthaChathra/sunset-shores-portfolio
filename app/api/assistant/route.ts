@@ -6,7 +6,9 @@ export const dynamic = "force-dynamic";
 
 /** Any Groq chat model; gpt-oss models run with low reasoning effort and hidden reasoning. */
 const DEFAULT_MODEL = "openai/gpt-oss-120b";
-const MODEL = process.env.GROQ_MODEL?.trim() || DEFAULT_MODEL;
+/** Dashboard values often arrive with stray quotes or whitespace (e.g. pasted as "gsk_..."). */
+const env = (name: string) => process.env[name]?.trim().replace(/^["']+|["']+$/g, "").trim() || "";
+const MODEL = env("GROQ_MODEL") || DEFAULT_MODEL;
 const MAX_TURNS = 10;
 const MAX_INPUT_CHARS = 500;
 const RATE_LIMIT = 20;
@@ -70,6 +72,12 @@ function sanitize(body: unknown): ChatMsg[] | null {
 
 const text = (s: string, status = 200) =>
   new Response(s, { status, headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
+/** Failure with a short, secret-free reason code (visible in the Network tab / X-Assistant-Error). */
+const fail = (reason: string, status: number) =>
+  new Response(`Assistant unavailable (${reason})`, {
+    status,
+    headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store", "X-Assistant-Error": reason },
+  });
 
 export async function POST(req: Request) {
   if (rateLimited(clientIp(req))) {
@@ -84,9 +92,10 @@ export async function POST(req: Request) {
   const messages = sanitize(body);
   if (!messages) return text("Bad request", 400);
 
-  if (!process.env.GROQ_API_KEY) return text("Assistant is not configured", 503);
+  const apiKey = env("GROQ_API_KEY");
+  if (!apiKey) return fail("not-configured", 503);
 
-  const client = new Groq();
+  const client = new Groq({ apiKey });
   const encoder = new TextEncoder();
   const reasoningFor = (model: string) => (model.startsWith("openai/gpt-oss") ? { reasoning_effort: "low" as const, include_reasoning: false } : {});
   const open = (model: string) =>
@@ -101,28 +110,51 @@ export async function POST(req: Request) {
       ...reasoningFor(model),
     });
 
+  // Open the Groq stream before responding, so a rejected call becomes a clear status code
+  // instead of a stream that dies before its first byte (which Vercel serves as its 500 page).
+  let completion;
+  try {
+    try {
+      completion = await open(MODEL);
+    } catch (err) {
+      // A mistyped GROQ_MODEL (e.g. "groq") shouldn't take the assistant down: fall back to the default.
+      const badModel = err instanceof Groq.NotFoundError || (err instanceof Groq.BadRequestError && /model/i.test(err.message));
+      if (badModel && MODEL !== DEFAULT_MODEL) {
+        console.warn(`[assistant] GROQ_MODEL "${MODEL}" rejected by Groq; falling back to ${DEFAULT_MODEL}`);
+        completion = await open(DEFAULT_MODEL);
+      } else throw err;
+    }
+  } catch (err) {
+    if (err instanceof Groq.RateLimitError) {
+      console.error("[assistant] rate limited by Groq");
+      return text("Sid's Assistant is getting a lot of questions right now. Try again in a minute.", 429);
+    }
+    if (err instanceof Groq.AuthenticationError || err instanceof Groq.PermissionDeniedError) {
+      console.error(`[assistant] Groq rejected the API key (${err.status}). Check GROQ_API_KEY.`);
+      return fail("groq-auth", 502);
+    }
+    if (err instanceof Groq.APIConnectionError) {
+      console.error("[assistant] could not reach Groq", err.message);
+      return fail("groq-unreachable", 502);
+    }
+    if (err instanceof Groq.APIError) {
+      console.error(`[assistant] Groq API error ${err.status}: ${err.message}`);
+      return fail(`groq-${err.status ?? "error"}`, 502);
+    }
+    console.error("[assistant] error", err);
+    return fail("server", 500);
+  }
+
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        let completion;
-        try {
-          completion = await open(MODEL);
-        } catch (err) {
-          // A mistyped GROQ_MODEL (e.g. "groq") shouldn't take the assistant down: fall back to the default.
-          if (err instanceof Groq.NotFoundError && MODEL !== DEFAULT_MODEL) {
-            console.warn(`[assistant] GROQ_MODEL "${MODEL}" not found on Groq; falling back to ${DEFAULT_MODEL}`);
-            completion = await open(DEFAULT_MODEL);
-          } else throw err;
-        }
         for await (const chunk of completion) {
           const t = chunk.choices[0]?.delta?.content;
           if (t) controller.enqueue(encoder.encode(t));
         }
         controller.close();
       } catch (err) {
-        if (err instanceof Groq.RateLimitError) console.error("[assistant] rate limited by Groq");
-        else if (err instanceof Groq.APIError) console.error(`[assistant] Groq API error ${err.status}: ${err.message}`);
-        else console.error("[assistant] error", err);
+        console.error("[assistant] stream error", err);
         controller.error(err);
       }
     },
