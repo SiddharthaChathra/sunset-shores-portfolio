@@ -8,11 +8,31 @@
  *   stack  <1024 wide, portrait-ish: scene window on top, apps below (phone + tablet portrait)
  *   phone  <768 stack · tabp 768–1023 stack · land: height ≤500 landscape ("cinematic")
  */
-@custom-variant frame (@media (min-width: 1024px) and (min-height: 500.02px), (min-width: 1024px) and (orientation: portrait));
-@custom-variant app (@media (max-width: 1023.98px), (max-height: 500px) and (orientation: landscape));
-@custom-variant stack (@media (max-width: 1023.98px) and (min-height: 500.02px), (max-width: 1023.98px) and (orientation: portrait));
-@custom-variant phone (@media (max-width: 767.98px) and (min-height: 500.02px), (max-width: 767.98px) and (orientation: portrait));
-@custom-variant tabp (@media (min-width: 768px) and (max-width: 1023.98px) and (min-height: 500.02px), (min-width: 768px) and (max-width: 1023.98px) and (orientation: portrait));
+@custom-variant frame {
+  @media (min-width: 1024px) and (min-height: 500.02px), (min-width: 1024px) and (orientation: portrait) {
+    @slot;
+  }
+}
+@custom-variant app {
+  @media (max-width: 1023.98px), (max-height: 500px) and (orientation: landscape) {
+    @slot;
+  }
+}
+@custom-variant stack {
+  @media (max-width: 1023.98px) and (min-height: 500.02px), (max-width: 1023.98px) and (orientation: portrait) {
+    @slot;
+  }
+}
+@custom-variant phone {
+  @media (max-width: 767.98px) and (min-height: 500.02px), (max-width: 767.98px) and (orientation: portrait) {
+    @slot;
+  }
+}
+@custom-variant tabp {
+  @media (min-width: 768px) and (max-width: 1023.98px) and (min-height: 500.02px), (min-width: 768px) and (max-width: 1023.98px) and (orientation: portrait) {
+    @slot;
+  }
+}
 @custom-variant land (@media (max-height: 500px) and (orientation: landscape));
 /* touch screens (any layout): bigger targets; declared last so it wins over frame:/app: */
 @custom-variant touch (@media (pointer: coarse));
