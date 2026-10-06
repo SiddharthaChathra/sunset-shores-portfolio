@@ -94,6 +94,11 @@ export async function POST(req: Request) {
 
   const apiKey = env("GROQ_API_KEY");
   if (!apiKey) return fail("not-configured", 503);
+  // e.g. a key copied from a masked field ("•••") — fetch can't send it, so say so plainly
+  if (/[^!-~]/.test(apiKey)) {
+    console.error("[assistant] GROQ_API_KEY contains non-ASCII characters (masked dots?). Paste the real key.");
+    return fail("groq-key-has-invalid-characters", 503);
+  }
 
   const client = new Groq({ apiKey });
   const encoder = new TextEncoder();
