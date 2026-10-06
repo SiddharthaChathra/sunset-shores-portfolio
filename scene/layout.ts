@@ -48,6 +48,12 @@ export const STOPS: Stop[] = [
   { cam: v(coastX(-292) - 4, 4.2, -292), target: v(coastX(-306) + 20, 2.2, -308) }, // contact: pier
 ];
 
+/**
+ * Where the beach café stands (xz): on the sand just inland of the waterline, clear of the highway, and far
+ * enough down the beach that the low road-level camera at the experience stop sees the whole hut beside the app.
+ */
+export const CAFE = keepOffRoad(v(coastX(-164) - 1.5, 0, -164), 7.4);
+
 /** Low golden-hour sun, over the sea in the direction the pier faces. */
 export const SUN_DIR = new THREE.Vector3(0.78, 0.06, -0.62).normalize();
 

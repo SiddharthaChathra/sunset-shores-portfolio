@@ -5,13 +5,15 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { rig } from "@/lib/rig";
 import { useDeviceMode } from "@/lib/device";
-import { CURVES, curveT, roadX, roadY, STOPS } from "./layout";
+import { CAFE, CURVES, curveT, roadX, roadY, STOPS } from "./layout";
 
 const pos = new THREE.Vector3();
 const look = new THREE.Vector3();
 const off = new THREE.Vector3();
 const right = new THREE.Vector3();
 const UP = new THREE.Vector3(0, 1, 0);
+/** Portrait-ish screens look straight at the café (wide screens keep it right of the app panel). */
+const CAFE_LOOK = new THREE.Vector3(CAFE.x + 1, 2.4, CAFE.z - 3);
 
 /** Mutable camera state other scene parts can read (damped world progress etc.). */
 export const camState = { world: 0, heroWeight: 1, px: 0, py: 0 };
@@ -39,6 +41,12 @@ export function CameraRig() {
 
     // Never dip under the road deck between control points (the spline can sag on the flyover descent).
     if (Math.abs(pos.x - roadX(pos.z)) < 9) pos.y = Math.max(pos.y, roadY(pos.z) + 2.6);
+
+    // Café: on portrait-ish canvases (phone scene window) swing the view onto the café itself.
+    if (state.size.width / Math.max(1, state.size.height) < 1.1) {
+      const cw = 1 - THREE.MathUtils.smoothstep(Math.abs(w - 3), 0.2, 0.9);
+      if (cw > 0) look.lerp(CAFE_LOOK, cw);
+    }
 
     // Billboard highway: the camera dollies forward along the flyover through the four projects.
     // (phones/tablets in portrait keep the camera still: the billboards slide sideways instead)

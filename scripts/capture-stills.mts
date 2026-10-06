@@ -2,13 +2,15 @@
  * Renders a still of every 3D scene (camera settled at each stop, HTML hidden) for the low tier /
  * reduced-motion fallback, posterised loading-screen panels, and the Open Graph image from the Hero. Requires a running server.
  * Usage: npm run build && npm run start & npm run capture:stills
+ * STILLS_ONLY=experience,skills re-renders just those sections (and skips the Open Graph image).
  */
 import { chromium } from "@playwright/test";
 import sharp from "sharp";
 import { mkdirSync } from "node:fs";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3100";
-const SECTIONS = ["hero", "about", "projects", "experience", "certificates", "skills", "contact"];
+const ONLY = process.env.STILLS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);
+const SECTIONS = ["hero", "about", "projects", "experience", "certificates", "skills", "contact"].filter((id) => !ONLY?.length || ONLY.includes(id));
 const ARGS = ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist", "--use-gl=angle"];
 
 mkdirSync("public/stills", { recursive: true });
@@ -57,12 +59,14 @@ for (const [suffix, w, h, dpr, frac] of [
 }
 
 // 2. Open Graph image: the live Hero with its HTML title.
-const og = await browser.newPage({ viewport: { width: 1200, height: 630 } });
-await og.goto(`${BASE}/?tier=high`);
-await og.waitForFunction("window.__sceneReady", null, { timeout: 90000 });
-await og.waitForSelector('[data-testid="loading-screen"]', { state: "detached", timeout: 30000 });
-await og.addStyleTag({ content: ".companion-layer,.hud-layer nav,[aria-label='Scroll to the next section']{display:none!important}" });
-await og.waitForTimeout(4500);
-await sharp(await og.screenshot({ type: "png" })).png({ compressionLevel: 9 }).toFile("app/opengraph-image.png");
-console.log("og image written");
+if (!ONLY?.length || ONLY.includes("hero")) {
+  const og = await browser.newPage({ viewport: { width: 1200, height: 630 } });
+  await og.goto(`${BASE}/?tier=high`);
+  await og.waitForFunction("window.__sceneReady", null, { timeout: 90000 });
+  await og.waitForSelector('[data-testid="loading-screen"]', { state: "detached", timeout: 30000 });
+  await og.addStyleTag({ content: ".companion-layer,.hud-layer nav,[aria-label='Scroll to the next section']{display:none!important}" });
+  await og.waitForTimeout(4500);
+  await sharp(await og.screenshot({ type: "png" })).png({ compressionLevel: 9 }).toFile("app/opengraph-image.png");
+  console.log("og image written");
+}
 await browser.close();

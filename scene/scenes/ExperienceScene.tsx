@@ -9,7 +9,7 @@ import { useApp } from "@/lib/store";
 import { sfx } from "@/lib/audio";
 import { SceneRoot } from "../SceneRoot";
 import { useStopLayout } from "../useStopLayout";
-import { keepOffRoad } from "../layout";
+import { CAFE, STOPS } from "../layout";
 import { GeoBuilder, vertexColorMaterial } from "../props/geo";
 import { neonMaterial } from "../fx/materials";
 
@@ -18,13 +18,9 @@ const mat = vertexColorMaterial(0.7);
 /** Beach café: pastel hut, striped awning, counter, neon OPEN sign, tables with umbrellas, string lights, surfboards. */
 export function ExperienceScene() {
   const L = useStopLayout(3);
-  const base = useMemo(() => {
-    // walk toward the camera until the café stands on dry sand
-    let p = L.ground(L.at(L.narrow ? 0 : 0.42, 0, 4));
-    for (let dz = 4; p.y < 0.3 && dz < 20; dz += 2) p = L.ground(L.at(L.narrow ? 0 : 0.42, 0, dz));
-    // the 12 × 8 m deck never overlaps the highway
-    return L.ground(keepOffRoad(p, 7.4));
-  }, [L]);
+  const base = useMemo(() => L.ground(CAFE), [L]);
+  // the front of the deck faces the stop camera, turned a little so the awning reads in three-quarter view
+  const facing = Math.atan2(STOPS[3].cam.x - CAFE.x, STOPS[3].cam.z - CAFE.z) + 0.3;
   const expFocus = useApp((s) => s.expFocus);
   const [flick, setFlick] = useState(0);
   const sign = useRef<THREE.MeshBasicMaterial>(null);
@@ -86,7 +82,7 @@ export function ExperienceScene() {
 
   return (
     <SceneRoot index={3}>
-      <group position={base} rotation-y={L.yaw + 0.3}>
+      <group position={base} rotation-y={facing}>
         <mesh geometry={hut} material={mat} />
         {bulbs.map((p, i) => (
           <mesh key={i} position={p} material={bulbMat} scale={expFocus !== null && i % 2 === expFocus % 2 ? 1.6 : 1}>

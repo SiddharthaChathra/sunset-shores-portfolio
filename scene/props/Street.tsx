@@ -3,7 +3,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { STOPS, TERRAIN_BOUNDS, coastX, roadX, roadY, terrainHeight } from "../layout";
+import { CAFE, STOPS, TERRAIN_BOUNDS, coastX, roadX, roadY, terrainHeight } from "../layout";
 import { hash } from "../noise";
 import { DecoRow, type DecoSpec } from "./Deco";
 import { Palms } from "./Palms";
@@ -18,6 +18,15 @@ const CLEAR: [number, number][] = [
 const isClear = (z: number) => CLEAR.some(([a, b]) => z > a && z < b);
 /** Keep palms out of the lens: nothing within 16 m of a camera stop. */
 const nearCam = (x: number, z: number) => STOPS.some((s) => Math.hypot(x - s.cam.x, z - s.cam.z) < 16);
+/** Keep the beach café readable: no palm on its deck or in the sightline from the experience stop. */
+const blocksCafe = (x: number, z: number) => {
+  const c = STOPS[3].cam;
+  const dx = CAFE.x - c.x;
+  const dz = CAFE.z - c.z;
+  const t = THREE.MathUtils.clamp(((x - c.x) * dx + (z - c.z) * dz) / (dx * dx + dz * dz), 0, 1.25);
+  return Math.hypot(x - (c.x + dx * t), z - (c.z + dz * t)) < 8.5;
+};
+const keepOut = (x: number, z: number) => nearCam(x, z) || blocksCafe(x, z);
 
 const SEGMENT = 60;
 /** Segments further than this (along z) from the camera are hidden: the haze hides the cut. */
@@ -82,14 +91,14 @@ export function Street({ density = 1 }: { density?: number }) {
       if (roadY(z) > 1.2) continue; // no palms on the flyover
       const sea = roadX(z) + 7.6;
       const land = roadX(z) - 7.4;
-      if (!nearCam(sea, z)) segOf(z).palms.push(new THREE.Vector3(sea, terrainHeight(sea, z), z));
+      if (!keepOut(sea, z)) segOf(z).palms.push(new THREE.Vector3(sea, terrainHeight(sea, z), z));
       if (!isClear(z) && !nearCam(land, z + 4.5)) segOf(z + 4.5).palms.push(new THREE.Vector3(land, terrainHeight(land, z + 4.5), z + 4.5));
     }
     // a few beach palms
     for (let k = 0; k < 26 * density; k++) {
       const z = maxZ - hash(k * 3.7) * (maxZ - minZ);
       const x = coastX(z) - 4 - hash(k * 1.3) * 5;
-      if (!nearCam(x, z)) segOf(z).palms.push(new THREE.Vector3(x, terrainHeight(x, z), z));
+      if (!keepOut(x, z)) segOf(z).palms.push(new THREE.Vector3(x, terrainHeight(x, z), z));
     }
     return [...segs.values()];
   }, [density]);
