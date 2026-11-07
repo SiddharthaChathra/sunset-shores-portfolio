@@ -118,7 +118,7 @@ export const projects: Project[] = [
     stack: ["Next.js 16", "TypeScript", "Supabase", "Tailwind", "shadcn/ui", "Zod"],
     links: {
       repo: "https://github.com/SiddharthaChathra/mentora",
-      live: "https://mentora-six.vercel.app",
+      live: "https://mentora-zeta-six.vercel.app/",
     },
     accentFromTheme: "teal",
     emblem: "book",
@@ -174,7 +174,7 @@ export const projects: Project[] = [
     stack: ["Phaser 3", "TypeScript", "Vite", "HTML5 Canvas"],
     links: {
       repo: "https://github.com/SiddharthaChathra/dangerous-dave-recharged",
-      live: "https://dangerous-dave-recharged.vercel.app",
+      live: "https://siddharthachathra.github.io/dangerous-dave-recharged/",
     },
     accentFromTheme: "coral",
     emblem: "gamepad",
