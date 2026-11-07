@@ -138,13 +138,13 @@ test.describe("iPhone 15 interactions", () => {
     await ready(page, "?tier=medium");
     const section = page.locator("#projects");
     const article = page.getByTestId("project-article");
-    const ids = ["jobsentinel", "netsentinel", "heart-disease-detection", "travora"];
+    const ids = ["netsentinel", "jobsentinel", "mentora", "travora", "dangerous-dave", "heart-disease-detection"];
     for (const order of [
-      [0, 1, 2, 3],
-      [3, 2, 1, 0],
+      [0, 1, 2, 3, 4, 5],
+      [5, 4, 3, 2, 1, 0],
     ]) {
       for (const i of order) {
-        await scrollToSection(page, "projects", (i + 0.5) * 0.75); // pinned span = 3 viewports for 4 projects
+        await scrollToSection(page, "projects", (i + 0.5) * (5 / 6)); // pinned span = 5 viewports for 6 projects
         await expect(section).toHaveAttribute("data-active-project", String(i));
         await expect(article).toHaveAttribute("data-project-id", ids[i]);
       }

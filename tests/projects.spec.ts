@@ -1,27 +1,27 @@
 import { test, expect, type Page } from "@playwright/test";
 import { boot } from "./helpers";
 
-const IDS = ["jobsentinel", "netsentinel", "heart-disease-detection", "travora"];
+const IDS = ["netsentinel", "jobsentinel", "mentora", "travora", "dangerous-dave", "heart-disease-detection"];
 
 async function scrollProjectsTo(page: Page, k: number) {
   await page.evaluate(
-    `(() => { const el = document.getElementById("projects"); const top = el.getBoundingClientRect().top + window.scrollY; const span = el.offsetHeight - innerHeight; const y = top + span * (${k} + 0.5) / 4; window.__lenis ? window.__lenis.scrollTo(y, { immediate: true, force: true }) : window.scrollTo(0, y); })()`,
+    `(() => { const el = document.getElementById("projects"); const top = el.getBoundingClientRect().top + window.scrollY; const span = el.offsetHeight - innerHeight; const y = top + span * (${k} + 0.5) / 6; window.__lenis ? window.__lenis.scrollTo(y, { immediate: true, force: true }) : window.scrollTo(0, y); })()`,
   );
 }
 
 for (const tier of ["high", "low"] as const) {
-  test(`projects: active card + description change 4 times in both directions (${tier})`, async ({ page }) => {
+  test(`projects: active card + description change 6 times in both directions (${tier})`, async ({ page }) => {
     await boot(page, tier);
     const section = page.locator("#projects");
     const article = page.getByTestId("project-article");
-    for (const k of [0, 1, 2, 3]) {
+    for (const k of [0, 1, 2, 3, 4, 5]) {
       await scrollProjectsTo(page, k);
       await expect(section).toHaveAttribute("data-active-project", String(k));
       await expect(article).toHaveAttribute("data-project-id", IDS[k]);
       await page.waitForTimeout(900);
       await page.screenshot({ path: `test-results/screens/projects-${tier}-${k}.png` });
     }
-    for (const k of [2, 1, 0]) {
+    for (const k of [4, 3, 2, 1, 0]) {
       await scrollProjectsTo(page, k);
       await expect(section).toHaveAttribute("data-active-project", String(k));
       await expect(article).toHaveAttribute("data-project-id", IDS[k]);
@@ -32,14 +32,16 @@ for (const tier of ["high", "low"] as const) {
   });
 }
 
-test("projects: exactly the four featured projects, in order", async ({ page }) => {
+test("projects: exactly the six featured projects, in order", async ({ page }) => {
   await boot(page, "low");
   const tabs = page.getByRole("tablist", { name: "Projects" }).getByRole("tab");
-  await expect(tabs).toHaveCount(4);
-  await expect(tabs.nth(0)).toContainText("JobSentinel AI");
-  await expect(tabs.nth(1)).toContainText("NetSentinel");
-  await expect(tabs.nth(2)).toContainText("Heart Disease Detection");
+  await expect(tabs).toHaveCount(6);
+  await expect(tabs.nth(0)).toContainText("NetSentinel");
+  await expect(tabs.nth(1)).toContainText("JobSentinel AI");
+  await expect(tabs.nth(2)).toContainText("Mentora");
   await expect(tabs.nth(3)).toContainText("Travora AI");
+  await expect(tabs.nth(4)).toContainText("Dangerous Dave Recharged");
+  await expect(tabs.nth(5)).toContainText("Heart Disease Detection");
 });
 
 test("projects: grab-to-spin the active card, then it springs back (high)", async ({ page }) => {

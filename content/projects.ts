@@ -1,6 +1,6 @@
-/** Featured projects: exactly these four, in this order. Never hard-code project text in components. */
+/** Featured projects: exactly these six, in this order. Never hard-code project text in components. */
 
-export type ProjectEmblem = "radar" | "globe" | "heart" | "plane";
+export type ProjectEmblem = "radar" | "globe" | "heart" | "plane" | "book" | "gamepad";
 export type AccentKey = "accent" | "teal" | "coral";
 
 export interface Project {
@@ -26,43 +26,8 @@ export interface Project {
 
 export const projects: Project[] = [
   {
-    id: "jobsentinel",
-    index: "01",
-    title: "JobSentinel AI",
-    oneLiner: "Autonomous job discovery and verification for engineering freshers.",
-    description:
-      "Monitors permitted public job sources and company career pages, normalises every listing into one format and merges duplicates across sources. Each job passes a validation pipeline before it reaches him: only roles in India that match 2027-batch fresher eligibility move on, get scored against his résumé with an explanation, and arrive as a Telegram alert with a direct apply link.",
-    problem:
-      "Fresher openings are scattered across job boards and company career pages, repeated on several sites, often already closed, and sometimes outright scams that ask for a registration fee. Checking them all by hand every day is slow, and a good role is easy to miss.",
-    unique: [
-      "Verifies a job before telling you about it: real company, working apply link, still open, no scam signals",
-      "Filters for one specific profile (India, 2027-batch fresher eligibility) and explains each résumé match score",
-      "Never misses a window: after a crash it backfills everything since its last successful run",
-      "AI is used only where meaning matters; URLs, dates, de-duplication and scheduling are plain deterministic code",
-    ],
-    highlights: [
-      "Validation pipeline: real company, live apply link, still open, and scam signals such as registration fees",
-      "Recovery scanning: tracks its last successful run and backfills anything missed after a crash",
-      "Provider-independent AI: swappable Gemini, Claude or local-model adapters behind one interface",
-      "Reliability first: deterministic code owns URLs, dates, dedup and scheduling; AI only where semantics matter",
-    ],
-    stack: [
-      "Next.js",
-      "NestJS",
-      "TypeScript",
-      "Supabase Postgres",
-      "Tailwind",
-      "shadcn/ui",
-      "Zod",
-      "Telegram Bot API",
-    ],
-    links: { repo: "https://github.com/SiddharthaChathra/jobsentinel-ai" },
-    accentFromTheme: "accent",
-    emblem: "radar",
-  },
-  {
     id: "netsentinel",
-    index: "02",
+    index: "01",
     title: "NetSentinel",
     oneLiner: "Network observability and intelligent troubleshooting platform.",
     description:
@@ -92,30 +57,71 @@ export const projects: Project[] = [
     date: "August 2026",
   },
   {
-    id: "heart-disease-detection",
-    index: "03",
-    title: "Heart Disease Detection",
-    oneLiner: "Full-stack ML app that predicts heart-disease risk from clinical inputs.",
+    id: "jobsentinel",
+    index: "02",
+    title: "JobSentinel AI",
+    oneLiner: "Autonomous job discovery and verification for engineering freshers.",
     description:
-      "A Random Forest model trained on clinical features, served by a Flask ML service behind a Node/Express backend with authentication and MongoDB. A React (Vite) frontend walks the user through Welcome, Login, Input and Prediction pages, with animated result visualisations.",
+      "Monitors permitted public job sources and company career pages, normalises every listing into one format and merges duplicates across sources. Each job passes a validation pipeline before it reaches him: only roles in India that match 2027-batch fresher eligibility move on, get scored against his résumé with an explanation, and arrive as a Telegram alert with a direct apply link.",
     problem:
-      "A trained model in a notebook is useless to someone who just wants an answer. This turns a heart-disease risk model into a web app anyone can use: sign in, enter routine clinical values, get a result they can read.",
+      "Fresher openings are scattered across job boards and company career pages, repeated on several sites, often already closed, and sometimes outright scams that ask for a registration fee. Checking them all by hand every day is slow, and a good role is easy to miss.",
     unique: [
-      "Uses 11 routine clinical inputs: age, sex, chest-pain type, resting BP, cholesterol, fasting blood sugar, resting ECG, max heart rate, exercise angina, ST depression and ST slope",
-      "Returns a confidence score and suggested next steps with every prediction, not just yes or no",
-      "Inference reuses the exact encoders and scaler saved at training time, so live inputs are processed the same way the model learned",
-      "Three independent services (React UI, Express + MongoDB auth API, Flask ML service) that can be scaled or replaced separately",
+      "Verifies a job before telling you about it: real company, working apply link, still open, no scam signals",
+      "Filters for one specific profile (India, 2027-batch fresher eligibility) and explains each résumé match score",
+      "Never misses a window: after a crash it backfills everything since its last successful run",
+      "AI is used only where meaning matters; URLs, dates, de-duplication and scheduling are plain deterministic code",
     ],
     highlights: [
-      "Random Forest with 200 trees, plus preprocessing, label encoding and scaling",
-      "Stratified 80/20 train-test split; encoders, scaler and model saved with joblib",
-      "Flask ML service behind a Node/Express API with auth and MongoDB",
-      "React + Vite UI with Framer Motion and Chart.js result charts",
+      "Validation pipeline: real company, live apply link, still open, and scam signals such as registration fees",
+      "Recovery scanning: tracks its last successful run and backfills anything missed after a crash",
+      "Provider-independent AI: swappable Gemini, Claude or local-model adapters behind one interface",
+      "Reliability first: deterministic code owns URLs, dates, dedup and scheduling; AI only where semantics matter",
     ],
-    stack: ["Python", "scikit-learn", "Flask", "Node.js", "Express", "MongoDB", "React", "Chart.js"],
-    links: { repo: "https://github.com/SiddharthaChathra/heartdeciesedetection" },
-    accentFromTheme: "coral",
-    emblem: "heart",
+    stack: [
+      "Next.js",
+      "NestJS",
+      "TypeScript",
+      "Supabase Postgres",
+      "Tailwind",
+      "shadcn/ui",
+      "Zod",
+      "Telegram Bot API",
+    ],
+    links: {
+      repo: "https://github.com/SiddharthaChathra/jobsentinel-ai",
+      live: "https://jobsentinel-ai.vercel.app",
+    },
+    accentFromTheme: "accent",
+    emblem: "radar",
+  },
+  {
+    id: "mentora",
+    index: "03",
+    title: "Mentora",
+    oneLiner: "Smart mentor–mentee management for engineering departments.",
+    description:
+      "A department-level platform where faculty mentors and student mentees are paired automatically, academic records are verified against university data, and every interaction is tracked. Mentors set goals per student, log session notes, and the system flags at-risk mentees with an explained reason. End-of-semester PDF reports are generated for the department with one click.",
+    problem:
+      "Engineering departments assign mentors on paper, track meetings in spreadsheets, and have no early-warning system when a student starts falling behind. By the time someone notices, the semester is over. There is no single place for goals, session logs and academic snapshots.",
+    unique: [
+      "Verified academic records: pulls and cross-checks marks and attendance so a mentor sees facts, not self-reported data",
+      "Explained risk flags: every at-risk label shows the exact metrics behind it (attendance drops, backlog count, missed sessions)",
+      "One-click PDF reports per mentor, per mentee or for the whole department, ready for accreditation or review meetings",
+      "Row-level security (Supabase RLS): mentors see only their own mentees; HODs see the department; students see only themselves",
+    ],
+    highlights: [
+      "Goal-setting and session-log workflow with status tracking per mentee",
+      "Risk-detection engine that flags students based on attendance, grades and session gaps",
+      "PDF report generator for individual and department-wide summaries",
+      "Supabase RLS policies enforce data isolation at the database level, not just in the UI",
+    ],
+    stack: ["Next.js 16", "TypeScript", "Supabase", "Tailwind", "shadcn/ui", "Zod"],
+    links: {
+      repo: "https://github.com/SiddharthaChathra/mentora",
+      live: "https://mentora-six.vercel.app",
+    },
+    accentFromTheme: "teal",
+    emblem: "book",
   },
   {
     id: "travora",
@@ -143,5 +149,60 @@ export const projects: Project[] = [
     accentFromTheme: "accent",
     emblem: "plane",
     date: "July 2026",
+  },
+  {
+    id: "dangerous-dave",
+    index: "05",
+    title: "Dangerous Dave Recharged",
+    oneLiner: "A browser platformer inspired by classic side-scrolling game mechanics.",
+    description:
+      "A from-scratch browser platformer built with Phaser 3 and TypeScript: tile-based levels, sprite-sheet animations, collectibles, enemies with patrol AI, and physics-driven jumping. The Vite dev server hot-reloads every change so levels can be iterated in seconds.",
+    problem:
+      "Classic DOS platformers like Dangerous Dave are remembered fondly but trapped in emulators. A modern browser remake lets anyone play instantly — no downloads, no compatibility issues — and the open codebase shows how a real-time game loop, collision detection and level design work under the hood.",
+    unique: [
+      "Runs in any modern browser at 60 fps — no install, no emulator, just a URL",
+      "Tile-map level editor: levels are plain JSON grids, easy to create and share",
+      "Sprite-sheet animation pipeline with idle, run, jump and death states",
+      "Enemy patrol AI with boundary awareness and player-proximity triggers",
+    ],
+    highlights: [
+      "Phaser 3 arcade physics with custom gravity curves for tight jump feel",
+      "Tile-based collision detection and one-way platforms",
+      "Collectible and scoring system with persistent high-score tracking",
+      "Vite HMR: instant feedback loop for level design and sprite tuning",
+    ],
+    stack: ["Phaser 3", "TypeScript", "Vite", "HTML5 Canvas"],
+    links: {
+      repo: "https://github.com/SiddharthaChathra/dangerous-dave-recharged",
+      live: "https://dangerous-dave-recharged.vercel.app",
+    },
+    accentFromTheme: "coral",
+    emblem: "gamepad",
+  },
+  {
+    id: "heart-disease-detection",
+    index: "06",
+    title: "Heart Disease Detection",
+    oneLiner: "Full-stack ML app that predicts heart-disease risk from clinical inputs.",
+    description:
+      "A Random Forest model trained on clinical features, served by a Flask ML service behind a Node/Express backend with authentication and MongoDB. A React (Vite) frontend walks the user through Welcome, Login, Input and Prediction pages, with animated result visualisations.",
+    problem:
+      "A trained model in a notebook is useless to someone who just wants an answer. This turns a heart-disease risk model into a web app anyone can use: sign in, enter routine clinical values, get a result they can read.",
+    unique: [
+      "Uses 11 routine clinical inputs: age, sex, chest-pain type, resting BP, cholesterol, fasting blood sugar, resting ECG, max heart rate, exercise angina, ST depression and ST slope",
+      "Returns a confidence score and suggested next steps with every prediction, not just yes or no",
+      "Inference reuses the exact encoders and scaler saved at training time, so live inputs are processed the same way the model learned",
+      "Three independent services (React UI, Express + MongoDB auth API, Flask ML service) that can be scaled or replaced separately",
+    ],
+    highlights: [
+      "Random Forest with 200 trees, plus preprocessing, label encoding and scaling",
+      "Stratified 80/20 train-test split; encoders, scaler and model saved with joblib",
+      "Flask ML service behind a Node/Express API with auth and MongoDB",
+      "React + Vite UI with Framer Motion and Chart.js result charts",
+    ],
+    stack: ["Python", "scikit-learn", "Flask", "Node.js", "Express", "MongoDB", "React", "Chart.js"],
+    links: { repo: "https://github.com/SiddharthaChathra/heartdeciesedetection" },
+    accentFromTheme: "coral",
+    emblem: "heart",
   },
 ];

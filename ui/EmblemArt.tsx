@@ -67,6 +67,53 @@ export function EmblemArt({ emblem, color, title }: { emblem: ProjectEmblem; col
             </g>
           </g>
         )}
+        {emblem === "book" && (
+          <g transform="translate(160 100)">
+            {/* open book */}
+            <path d="M-52 18 Q-52 -28 0 -28 Q52 -28 52 18" fill={color} fillOpacity="0.10" strokeWidth="2" />
+            <path d="M0 -28 V22" strokeWidth="2" stroke={color} />
+            <path d="M-52 18 L0 22 L52 18" strokeWidth="2" />
+            <path d="M-52 18 Q-52 -28 0 -28" />
+            <path d="M52 18 Q52 -28 0 -28" />
+            {/* left page lines */}
+            <path d="M-38 -8 Q-20 -14 -6 -10" strokeOpacity="0.5" />
+            <path d="M-38 2 Q-20 -4 -6 0" strokeOpacity="0.5" />
+            <path d="M-38 12 Q-20 6 -6 10" strokeOpacity="0.5" />
+            {/* right page lines */}
+            <path d="M6 -10 Q20 -14 38 -8" strokeOpacity="0.5" />
+            <path d="M6 0 Q20 -4 38 2" strokeOpacity="0.5" />
+            <path d="M6 10 Q20 6 38 12" strokeOpacity="0.5" />
+            {/* lightbulb above */}
+            <circle cx="0" cy="-58" r="14" fill={color} fillOpacity="0.18" stroke={color} strokeWidth="2" />
+            <path d="M-5 -48 V-42 H5 V-48" stroke={color} strokeWidth="1.4" />
+            <path d="M0 -70 V-74" stroke={color} strokeWidth="1.4" />
+            <path d="M-10 -70 L-13 -74" stroke={color} strokeWidth="1.4" />
+            <path d="M10 -70 L13 -74" stroke={color} strokeWidth="1.4" />
+          </g>
+        )}
+        {emblem === "gamepad" && (
+          <g transform="translate(160 100)">
+            {/* controller body */}
+            <path
+              d="M-48 -8 C-50 -26 -36 -36 -18 -36 L18 -36 C36 -36 50 -26 48 -8 C46 12 38 28 24 30 L16 14 L-16 14 L-24 30 C-38 28 -46 12 -48 -8 Z"
+              fill={color}
+              fillOpacity="0.12"
+              strokeWidth="2"
+            />
+            {/* d-pad */}
+            <path d="M-30 -10 H-22 V-18 H-16 V-10 H-8 V-4 H-16 V4 H-22 V-4 H-30 V-10 Z" strokeWidth="1.6" />
+            {/* buttons */}
+            <circle cx="18" cy="-18" r="5" stroke={color} strokeWidth="2" />
+            <circle cx="28" cy="-8" r="5" stroke={color} strokeWidth="2" />
+            <circle cx="18" cy="-8" r="2" fill={color} stroke="none" />
+            <circle cx="28" cy="-18" r="2" fill={color} stroke="none" />
+            {/* pixel stars around */}
+            <rect x="-60" y="-30" width="4" height="4" fill={color} stroke="none" />
+            <rect x="56" y="-32" width="3" height="3" fill={color} stroke="none" />
+            <rect x="-54" y="16" width="3" height="3" fill={color} stroke="none" />
+            <rect x="52" y="14" width="4" height="4" fill={color} stroke="none" />
+          </g>
+        )}
       </g>
     </svg>
   );

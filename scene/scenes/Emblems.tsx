@@ -135,6 +135,100 @@ function NeonHeart({ color }: { color: string }) {
   );
 }
 
+/** Mentora: a floating open book with a glowing knowledge orb above it. */
+function FloatingBook({ color }: { color: string }) {
+  const g = useRef<THREE.Group>(null);
+  const orb = useRef<THREE.Mesh>(null);
+  const bookGeo = useMemo(() => {
+    const b = new GeoBuilder();
+    // book covers
+    b.box(4.2, 0.15, 3, -1.2, 0.1, 0, "#FFFFFF");
+    b.box(4.2, 0.15, 3, 1.2, 0.1, 0, "#FFFFFF");
+    // spine
+    b.box(0.3, 0.6, 3, 0, -0.15, 0, "#FFD1DC");
+    // pages (stacked inside)
+    b.box(3.6, 0.35, 2.6, -1.2, -0.12, 0, "#FFF8F2");
+    b.box(3.6, 0.35, 2.6, 1.2, -0.12, 0, "#FFF8F2");
+    return b.build();
+  }, []);
+  const glow = useMemo(() => neonMaterial(color, 2.6), [color]);
+  useFrame((s, dt) => {
+    if (g.current) {
+      g.current.rotation.y += dt * 0.25;
+      g.current.position.y = Math.sin(s.clock.elapsedTime * 0.8) * 0.3;
+    }
+    if (orb.current) {
+      const beat = 1 + 0.15 * Math.sin(s.clock.elapsedTime * 2.4);
+      orb.current.scale.setScalar(beat);
+    }
+  });
+  return (
+    <group ref={g}>
+      <mesh geometry={bookGeo} material={deco} rotation-x={-0.15} />
+      {/* glowing knowledge orb */}
+      <mesh ref={orb} position={[0, 2.4, 0]} material={glow}>
+        <icosahedronGeometry args={[0.55, 2]} />
+      </mesh>
+      {/* orbit ring around orb */}
+      <mesh position={[0, 2.4, 0]} rotation-x={Math.PI / 3}>
+        <torusGeometry args={[1.1, 0.03, 6, 48]} />
+        <meshBasicMaterial color={color} transparent opacity={0.5} toneMapped={false} />
+      </mesh>
+    </group>
+  );
+}
+
+/** Dangerous Dave Recharged: a retro game controller with a pulsing pixel heart. */
+function RetroGamepad({ color }: { color: string }) {
+  const g = useRef<THREE.Group>(null);
+  const heart = useRef<THREE.Mesh>(null);
+  const padGeo = useMemo(() => {
+    const b = new GeoBuilder();
+    // controller body
+    b.box(5.5, 0.6, 2.8, 0, 0, 0, "#FFFFFF");
+    // grips
+    b.box(1.2, 0.5, 2, -2.8, -0.8, 0, "#FFD1DC");
+    b.box(1.2, 0.5, 2, 2.8, -0.8, 0, "#FFD1DC");
+    // d-pad
+    b.box(0.4, 0.2, 1.2, -1.4, 0.4, 0, "#5B5670");
+    b.box(1.2, 0.2, 0.4, -1.4, 0.4, 0, "#5B5670");
+    // buttons
+    b.box(0.5, 0.2, 0.5, 1.6, 0.4, -0.5, "#FF4F8B");
+    b.box(0.5, 0.2, 0.5, 2.2, 0.4, 0.1, "#FF9F43");
+    return b.build();
+  }, []);
+  const glow = useMemo(() => neonMaterial(color, 2.4), [color]);
+  useFrame((s) => {
+    if (g.current) {
+      g.current.rotation.y = Math.sin(s.clock.elapsedTime * 0.4) * 0.3;
+      g.current.position.y = Math.sin(s.clock.elapsedTime * 0.6) * 0.25;
+    }
+    if (heart.current) {
+      const beat = Math.pow(Math.max(0, Math.sin(s.clock.elapsedTime * 3)), 8);
+      heart.current.scale.setScalar(1 + beat * 0.25);
+    }
+  });
+  return (
+    <group ref={g}>
+      <mesh geometry={padGeo} material={deco} />
+      {/* floating pixel heart above the controller */}
+      <mesh ref={heart} position={[0, 2.2, 0]} material={glow}>
+        <boxGeometry args={[0.6, 0.6, 0.6]} />
+      </mesh>
+      {/* pixel sparkles */}
+      {[
+        [-1.8, 2.8, 0.6],
+        [1.6, 3, -0.4],
+        [0.2, 3.4, 0.3],
+      ].map(([x, y, z], i) => (
+        <mesh key={i} position={[x, y, z]} material={glow}>
+          <boxGeometry args={[0.18, 0.18, 0.18]} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 /** Travora AI: a seaplane circling the bay. */
 function Seaplane() {
   const orbit = useRef<THREE.Group>(null);
@@ -192,6 +286,8 @@ export function Emblem({ kind, color, visible }: { kind: ProjectEmblem; color: s
       {kind === "globe" && <GlobeSign color={color} />}
       {kind === "heart" && <NeonHeart color={color} />}
       {kind === "plane" && <Seaplane />}
+      {kind === "book" && <FloatingBook color={color} />}
+      {kind === "gamepad" && <RetroGamepad color={color} />}
     </group>
   );
 }
